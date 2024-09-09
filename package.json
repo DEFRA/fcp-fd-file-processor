@@ -1,6 +1,6 @@
 {
   "name": "fcp-fd-file-processor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "File Processor for front door",
   "homepage": "https://github.com/DEFRA/fcp-fd-file-processor",
   "main": "app/index.js",

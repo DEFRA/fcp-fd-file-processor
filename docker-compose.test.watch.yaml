@@ -1,5 +1,5 @@
 services:
-  ffc-template-node:
+  fcp-fd-file-processor:
     command: >
       sh -c "npm run test:watch"
     volumes:

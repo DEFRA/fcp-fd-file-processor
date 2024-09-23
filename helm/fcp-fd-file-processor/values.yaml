@@ -42,3 +42,7 @@ readinessProbe:
   periodSeconds: 10
   failureThreshold: 3
   timeoutSeconds: 5
+
+azureIdentity:
+  resourceID:
+  clientID:

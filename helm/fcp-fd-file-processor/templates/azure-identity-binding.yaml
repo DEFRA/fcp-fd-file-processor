@@ -1,3 +1,4 @@
+
 {{- include "ffc-helm-library.azure-identity-binding" (list . "fcp-fd-file-processor.azure-identity-binding") -}}
 {{- define "fcp-fd-file-processor.azure-identity-binding" -}}
 {{- end -}}

@@ -8,8 +8,8 @@ services:
     image: fcp-fd-file-processor-development
     container_name: fcp-fd-file-processor-development
     ports:
-      - "3019:3019"
-      - "9019:9229"
+      - "3037:3037"
+      - "9037:9229"
     volumes:
       - ./app:/home/node/app
       - ./package.json:/home/node/package.json

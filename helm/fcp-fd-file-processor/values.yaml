@@ -25,11 +25,11 @@ container:
   requestCpu: 100m
   limitMemory: 100Mi
   limitCpu: 100m
-  port: 3000
+  port: 3037
 
 livenessProbe:
   path: /healthz
-  port: 3000
+  port: 3037
   initialDelaySeconds: 20
   periodSeconds: 10
   failureThreshold: 3
@@ -37,7 +37,7 @@ livenessProbe:
 
 readinessProbe:
   path: /healthy
-  port: 3000
+  port: 3037
   initialDelaySeconds: 30
   periodSeconds: 10
   failureThreshold: 3

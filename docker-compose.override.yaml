@@ -13,3 +13,12 @@ services:
     volumes:
       - ./app:/home/node/app
       - ./package.json:/home/node/package.json
+    environment:
+      STORAGE_CONNECTION_STRING: ${STORAGE_CONNECTION_STRING}
+  fcp-fd-file-processor-azurite:
+    volumes:
+      - azurite_data:/data
+    ports:
+      - "10037:10000"
+volumes:
+  azurite_data:

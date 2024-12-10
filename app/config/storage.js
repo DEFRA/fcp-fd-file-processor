@@ -3,10 +3,10 @@ import { DEVELOPMENT, TEST, PRODUCTION } from '../constants/environments.js'
 
 const storageConfig = convict({
   connectionStr: {
-    doc: 'Storage connection string',
+    doc: 'DMZ Storage account connection string',
     format: String,
     default: '',
-    env: 'STORAGE_CONNECTION_STRING'
+    env: 'DMZ_STORAGE_CONNECTION_STRING'
   },
   storageAccount: {
     doc: 'DMZ Storage account name',

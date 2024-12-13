@@ -16,3 +16,4 @@ services:
       - ./package.json:/home/node/package.json
     environment:
       NODE_OPTIONS: "$NODE_OPTIONS --experimental-vm-modules"
+      AZURITE_CONNECTION_STRING: ${AZURITE_CONNECTION_STRING}

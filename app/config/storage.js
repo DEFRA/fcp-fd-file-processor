@@ -3,15 +3,15 @@ import { DEVELOPMENT, TEST, PRODUCTION } from '../constants/environments.js'
 
 const storageConfig = convict({
   connectionStr: {
-    doc: 'DMZ Storage account connection string',
+    doc: 'Connection string for local Azurite storage',
     format: String,
-    default: '',
-    env: 'DMZ_STORAGE_CONNECTION_STRING'
+    default: 'not-set',
+    env: 'AZURITE_CONNECTION_STRING'
   },
   storageAccount: {
     doc: 'DMZ Storage account name',
     format: String,
-    default: '',
+    default: 'devstoreaccount1',
     env: 'DMZ_STORAGE_ACCOUNT_NAME'
   },
   container: {

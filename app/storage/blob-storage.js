@@ -6,15 +6,11 @@ import { DEVELOPMENT } from '../constants/environments.js'
 let blobServiceClient
 let containersInitialised
 
-const connectionStr = storageConfig.get('connectionStr')
-console.log('Connection String:', connectionStr)
-
 if (storageConfig.get('useConnectionStr')) {
   console.log('Using connection string for BlobServiceClient')
   blobServiceClient = BlobServiceClient.fromConnectionString(storageConfig.get('connectionStr'))
 } else {
   console.log('Using DefaultAzureCredential for BlobServiceClient')
-  console.log('Managed Identity Client Id:', storageConfig.get('managedIdentityClientId'))
   const credential = new DefaultAzureCredential({ managedIdentityClientId: storageConfig.get('managedIdentityClientId') })
   blobServiceClient = new BlobServiceClient(storageConfig.get('endpoint'), credential)
 }
@@ -28,7 +24,7 @@ const initialiseFolders = async () => {
 }
 
 const initialiseContainers = async () => {
-  if (storageConfig.createContainers) {
+  if (storageConfig.get('createContainers')) {
     console.log('Making sure blob containers exist')
     await container.createIfNotExists()
   }

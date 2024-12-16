@@ -7,7 +7,7 @@ let server
 const url = '/upload'
 
 describe('upload files to blob storage', () => {
-  // Helper functions
+  // Helper function
   const getInboundFileList = async (folder) => {
     const containerClient = blobStorage.blobServiceClient.getContainerClient(storageConfig.get('container'))
     const fileList = []

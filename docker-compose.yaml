@@ -13,6 +13,7 @@ services:
       DMZ_STORAGE_ACCOUNT_NAME: ${DMZ_STORAGE_ACCOUNT_NAME:-sndfcpfdst1001dmz}
       STORAGE_USE_CONNECTION_STRING: "true"
       DMZ_STORAGE_ACCOUNT_ENDPOINT: ${DMZ_STORAGE_ACCOUNT_ENDPOINT}
+      AZURITE_CONNECTION_STRING: ${AZURITE_CONNECTION_STRING}
     
   fcp-fd-file-processor-azurite:
     image: mcr.microsoft.com/azure-storage/azurite:3.23.0

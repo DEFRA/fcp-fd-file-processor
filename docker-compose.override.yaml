@@ -12,6 +12,8 @@ services:
       - "9037:9229"
     volumes:
       - ./app:/home/node/app
+      - ./test:/home/node/test
+      - ./scripts:/home/node/scripts
       - ./package.json:/home/node/package.json
     environment:
       AZURITE_CONNECTION_STRING: ${AZURITE_CONNECTION_STRING}

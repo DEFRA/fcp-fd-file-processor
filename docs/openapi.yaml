@@ -4,9 +4,11 @@ info:
   version: 1.0.0
   description: Handles file uploads with metadata for the fcp-fd-file-processor microservice.
 
-paths:
+paths: 
   /upload:
     post:
+      tags:
+        - Upload
       summary: Upload a file with metadata
       description: Accepts file upload requests with metadata via HTTP using the form-data method.
       requestBody:

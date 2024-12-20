@@ -4,7 +4,17 @@ services:
       context: .
       target: production
     image: fcp-fd-file-processor
+    depends_on:
+      - fcp-fd-file-processor-azurite
     container_name: fcp-fd-file-processor
     environment:
       APPINSIGHTS_CLOUDROLE: fcp-fd-file-processor-local
       APPINSIGHTS_CONNECTIONSTRING: ${APPINSIGHTS_CONNECTIONSTRING}
+
+  fcp-fd-file-processor-azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:3.33.0
+    container_name: fcp-fd-file-processor-azurite
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"

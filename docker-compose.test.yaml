@@ -16,3 +16,11 @@ services:
       - ./package.json:/home/node/package.json
     environment:
       NODE_OPTIONS: "$NODE_OPTIONS --experimental-vm-modules"
+      USE_AZURITE: true
+      AZURITE_ACCESS_KEY: "test"
+      DMZ_STORAGE_ACCOUNT_NAME: "dmz"
+    
+  fcp-fd-file-processor-azurite:
+    container_name: fcp-fd-file-processor-azurite-test
+    environment:
+      AZURITE_ACCOUNTS: "dmz:test;clean:test;malicious:test"

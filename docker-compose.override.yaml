@@ -13,3 +13,17 @@ services:
     volumes:
       - ./app:/home/node/app
       - ./package.json:/home/node/package.json
+    environment:
+      USE_AZURITE: ${USE_AZURITE:-false}
+      AZURITE_ACCESS_KEY: ${AZURITE_ACCESS_KEY}
+      DMZ_STORAGE_ACCOUNT_NAME: ${DMZ_STORAGE_ACCOUNT_NAME}
+
+  fcp-fd-file-processor-azurite:
+    container_name: fcp-fd-file-processor-azurite-development
+    environment:
+      AZURITE_ACCOUNTS: "dmz:${AZURITE_ACCESS_KEY};clean:${AZURITE_ACCESS_KEY};malicious:${AZURITE_ACCESS_KEY}"
+    volumes:
+      - azurite_data:/data
+
+volumes:
+  azurite_data:

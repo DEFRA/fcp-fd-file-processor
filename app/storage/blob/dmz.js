@@ -1,22 +1,19 @@
-import { DefaultAzureCredential } from '@azure/identity'
-import { BlobServiceClient, StorageSharedKeyCredential } from '@azure/storage-blob'
+import { BlobServiceClient } from '@azure/storage-blob'
 
 import { storage } from '../../config/index.js'
+import { getStorageCredential, getStorageEndpoint } from '../../utils/storage.js'
 
-const getCredential = () => {
-  if (storage.get('dmz.accessKey')) {
-    return new StorageSharedKeyCredential(
-      storage.get('dmz.accountName'),
-      storage.get('dmz.accessKey')
-    )
-  }
+const endpoint = getStorageEndpoint(
+  storage.get('blob.endpoint'),
+  storage.get('dmz.accountName')
+)
 
-  return new DefaultAzureCredential({ managedIdentityClientId: storage.get('managedIdentityClientId') })
-}
-
-const endpoint = storage.get('blob.endpoint').replace('?', storage.get('dmz.accountName'))
+const credential = getStorageCredential(
+  storage.get('dmz.accountName'),
+  storage.get('dmz.accessKey')
+)
 
 export const dmz = new BlobServiceClient(
   endpoint,
-  getCredential()
+  credential
 )

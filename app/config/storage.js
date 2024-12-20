@@ -15,15 +15,15 @@ const storage = convict({
   managedIdentityClientId: {
     doc: 'Managed Identity Client ID',
     format: String,
-    nullable: isProd(),
-    default: '',
+    nullable: !isProd(),
+    default: null,
     env: 'MANAGED_IDENTITY_CLIENT_ID'
   },
   dmz: {
     accountName: {
       doc: 'DMZ Azure Storage Account Name',
       format: String,
-      default: 'dmz',
+      default: null,
       env: 'DMZ_STORAGE_ACCOUNT_NAME'
     },
     accessKey: {
@@ -31,7 +31,9 @@ const storage = convict({
       format: String,
       nullable: true,
       default: null,
-      env: process.env.USE_AZURITE === 'true' ? 'AZURITE_ACCESS_KEY' : 'DMZ_STORAGE_ACCESS_KEY'
+      env: process.env.USE_AZURITE === 'true'
+        ? 'AZURITE_ACCESS_KEY'
+        : 'DMZ_STORAGE_ACCESS_KEY'
     }
   },
   emulator: {

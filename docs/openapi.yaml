@@ -1,0 +1,67 @@
+openapi: 3.0.0
+info:
+  title: FCP FD File Processor
+  version: 1.0.0
+  description: Handles file uploads with metadata for the fcp-fd-file-processor microservice.
+
+paths:
+  /upload:
+    post:
+      summary: Upload a file with metadata
+      description: Accepts file upload requests with metadata via HTTP using the form-data method.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - sbi
+                - crn
+                - sourceSystem
+                - documentType
+              
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File object to be uploaded. Allowed extensions - PDF.
+                  
+                sbi:
+                  type: number
+                  description: Single Business Identifier (consists of 9 digits)
+                  minimum: 105000000
+                  maximum: 999999999
+                  example: 123456789
+
+                crn:
+                  type: number
+                  description: Customer Reference Number (consists of 10 digits)
+                  minimum: 1050000000
+                  maximum: 9999999999
+                  example: 1234567890
+                
+                sourceSystem:
+                  type: string
+                  description: Name of the source system that originated the message
+                  example: "AHWP"
+                  minLength: 3
+                  maxLength: 100
+                  pattern: "^[a-z0-9-_]+$"
+
+                documentType:
+                  type: string
+                  description: The type of document being uploaded (e.g., "invoice").
+                  example: "invoice"
+                  minLength: 3
+                  maxLength: 100
+                  pattern: "^[a-z0-9-_]+$"
+
+      responses:
+        '200':
+          description: File successfully uploaded.
+        '400':
+          description: Bad request due to missing file.
+        '500':
+          description: Server error during file upload.

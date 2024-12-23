@@ -1,7 +1,11 @@
 const getExtension = (filename) => {
-  const parts = filename.split('.')
+  const index = filename.lastIndexOf('.')
 
-  return parts[parts.length - 1]
+  if (index === -1) {
+    return null
+  }
+
+  return filename.slice(index + 1)
 }
 
 export {

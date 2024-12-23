@@ -14,11 +14,17 @@ const checkFileType = async (value, helpers) => {
   const extension = getExtension(filename)
   const mimeType = headers['content-type']
 
+  let detected
+
+  try {
+    detected = await fileTypeFromBuffer(value._data)
+  } catch (err) {
+    return helpers.message(`Failed to detect file type: ${err.message}`)
+  }
+
   if (!extension || !mimeType) {
     return helpers.message('File is missing extension and / or mime type')
   }
-
-  const detected = await fileTypeFromBuffer(value._data)
 
   if (extension !== detected.ext) {
     return helpers.message(`Detected extension (.${detected.ext}) does not match the provided extension (.${extension})`)
@@ -38,7 +44,7 @@ const v1 = Joi.object({
       headers: Joi.object({
         'content-disposition': Joi.string().required(),
         'content-type': Joi.string().valid(...validFileTypes).required().messages({
-          'any.only': '.message(`Unsupported content type. Supported types are: {{#valids}}`)'
+          'any.only': 'Unsupported content type. Supported types are: {{#valids}}'
         })
       }).required()
     }).unknown().required(),

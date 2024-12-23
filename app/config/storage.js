@@ -46,9 +46,16 @@ const storage = convict({
     host: {
       doc: 'Azurite host',
       format: String,
-      nullable: process.env.AZURITE_HOST !== 'true',
+      nullable: process.env.USE_AZURITE !== 'true',
       default: null,
       env: 'AZURITE_HOST'
+    },
+    blobPort: {
+      doc: 'Azurite blob port',
+      format: Number,
+      nullable: process.env.USE_AZURITE !== 'true',
+      default: null,
+      env: 'AZURITE_BLOB_PORT'
     }
   }
 })

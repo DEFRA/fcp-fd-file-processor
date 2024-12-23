@@ -22,7 +22,7 @@ const upload = {
 
         let code = 400
 
-        if (errors.every(e => e.includes('Unsupported content type'))) {
+        if (errors.length === 1 && errors[0].includes('Unsupported content type')) {
           code = 415
         }
 

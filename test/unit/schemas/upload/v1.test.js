@@ -186,6 +186,38 @@ describe('upload schema', () => {
 
       expect(messages).toContain('Detected type (image/png) does not match the provided type (application/pdf)')
     })
+
+    test('should return an error if unable to detect file type', async () => {
+      const payload = {
+        file: {
+          hapi: {
+            filename: 'agreement.pdf',
+            headers: {
+              'content-disposition': 'content-disposition',
+              'content-type': 'application/pdf'
+            }
+          },
+          _data: Buffer.from('test')
+        },
+        sbi: 123456789,
+        sourceSystem: 'source',
+        documentType: 'agreement'
+      }
+
+      let error
+
+      try {
+        await v1.validateAsync(payload, { abortEarly: false })
+      } catch (err) {
+        error = err
+      }
+
+      expect(error.details).toBeDefined()
+
+      const messages = error.details.map(detail => detail.message)
+
+      expect(messages).toContain('Unable to detect file type. Verify that the file is not corrupted')
+    })
   })
 
   describe('required fields', () => {

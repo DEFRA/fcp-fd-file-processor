@@ -14,11 +14,12 @@ services:
       - ./app:/home/node/app
       - ./package.json:/home/node/package.json
     environment:
-      USE_AZURITE: ${USE_AZURITE:-false}
+      USE_AZURITE: ${USE_AZURITE:-true}
       AZURITE_HOST: ${AZURITE_HOST:-http://fcp-fd-file-processor-azurite-development}
       AZURITE_BLOB_PORT: ${AZURITE_BLOB_PORT:-10000}
       AZURITE_ACCESS_KEY: ${AZURITE_ACCESS_KEY:-test}
-      DMZ_STORAGE_ACCOUNT_NAME: ${DMZ_STORAGE_ACCOUNT_NAME}
+      DMZ_STORAGE_ACCOUNT_NAME: ${DMZ_STORAGE_ACCOUNT_NAME:-dmz}
+      DMZ_STORAGE_ACCESS_KEY: ${DMZ_STORAGE_ACCESS_KEY}
 
   fcp-fd-file-processor-azurite:
     container_name: fcp-fd-file-processor-azurite-development

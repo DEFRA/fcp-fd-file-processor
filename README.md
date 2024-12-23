@@ -1,15 +1,32 @@
 # fcp-fd-file-processor
+Microservice to process file uploads into the Single Front Door (SFD).
 
-
+This service is part of the [Single Front Door (SFD) service](https://github.com/DEFRA/fcp-fd-core).
 
 ## Prerequisites
-
 - Docker
 - Docker Compose
 
 Optional:
 - Kubernetes
 - Helm
+
+## Setup
+
+### Configuration
+
+These configuration values should be set in the docker-compose.yaml file or Helm values.yaml file if deploying to Kubernetes.
+
+| Name                      | Default Value                                          | Required                  | Description                                                                 |
+|---------------------------|--------------------------------------------------------|---------------------------|-----------------------------------------------------------------------------|
+| USE_AZURITE               | false                                                  | No                        | Flag to use Azurite for local development                                   |
+| AZURITE_HOST              | http://fcp-fd-file-processor-azurite-development       | No                        | Azurite host name                                                          |
+| AZURITE_BLOB_PORT         | 10000                                                  | No                        | Azurite blob port                                                          |
+| AZURITE_ACCESS_KEY        | test                                                   | No                        | Access key for Azurite                                                     |
+| DMZ_STORAGE_ACCOUNT_NAME  | dmz                                                    | Yes                       | The name of the DMZ storage account                                        |
+| DMZ_STORAGE_ACCESS_KEY    | (no default value)                                     | No                        | Access key to DMZ storage account (should only be used for local development)|
+| MANAGED_IDENTITY_CLIENT_ID| (no default value)                                     | Yes - If production build | Managed identity client ID                                                 |
+| OBJECTS_CONTAINER_NAME    | objects                                                | No                        | Optional container name override. Intended to be overridden with dev suffix if using a shared storage account. |
 
 ## Running the application
 

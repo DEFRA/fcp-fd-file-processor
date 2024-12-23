@@ -8,6 +8,8 @@ const endpoint = getStorageEndpoint(
   storage.get('dmz.accountName')
 )
 
+console.log('accessKey', storage.get('dmz.accessKey'))
+
 const credential = getStorageCredential(
   storage.get('dmz.accountName'),
   storage.get('dmz.accessKey')

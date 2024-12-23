@@ -14,12 +14,10 @@ const checkFileType = async (value, helpers) => {
   const extension = getExtension(filename)
   const mimeType = headers['content-type']
 
-  let detected
+  const detected = await fileTypeFromBuffer(value._data)
 
-  try {
-    detected = await fileTypeFromBuffer(value._data)
-  } catch (err) {
-    return helpers.message(`Failed to detect file type: ${err.message}`)
+  if (!detected) {
+    return helpers.message('Unable to detect file type. Verify that the file is not corrupted')
   }
 
   if (!extension || !mimeType) {

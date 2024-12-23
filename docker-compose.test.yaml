@@ -26,4 +26,7 @@ services:
   fcp-fd-file-processor-azurite:
     container_name: fcp-fd-file-processor-azurite-test
     environment:
-      AZURITE_ACCOUNTS: "dmz:test;clean:test;malicious:test"
+      AZURITE_ACCOUNTS: >
+        dmz:test;
+        cln:test;
+        mal:test

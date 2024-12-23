@@ -36,6 +36,14 @@ const storage = convict({
         : 'DMZ_STORAGE_ACCESS_KEY'
     }
   },
+  container: {
+    objects: {
+      doc: 'Azure Blob Storage Object Container',
+      format: String,
+      default: 'objects',
+      env: 'OBJECTS_CONTAINER_NAME'
+    }
+  },
   emulator: {
     useEmulator: {
       doc: 'Use Azure Storage Emulator',

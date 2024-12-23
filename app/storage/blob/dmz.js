@@ -19,17 +19,17 @@ const client = new BlobServiceClient(
 )
 
 const containers = {
-  objects: client.getContainerClient('objects')
+  objects: client.getContainerClient(storage.get('container.objects'))
 }
 
-const createContainers = async () => {
-  for (const client of Object.keys(containers)) {
-    await client.createIfNotExists()
+const createDmzContainers = async () => {
+  for (const container of Object.keys(containers)) {
+    await containers[container].createIfNotExists()
   }
 }
 
 export {
   client,
   containers,
-  createContainers
+  createDmzContainers
 }

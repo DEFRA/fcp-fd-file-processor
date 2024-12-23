@@ -1,6 +1,6 @@
 import { addObject } from '../repos/dmz.js'
 import { v1 as uploadSchema } from '../schemas/upload/index.js'
-import { storeFile } from '../services/upload.js'
+import { handleUpload } from '../services/upload.js'
 
 const upload = {
   method: 'POST',
@@ -39,7 +39,7 @@ const upload = {
 
     delete metadata.file
 
-    const path = await storeFile(data, metadata)
+    const path = await handleUpload(data, metadata)
 
     return h.response({ 
       path,

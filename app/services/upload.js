@@ -1,6 +1,6 @@
 import { addObject } from '../repos/dmz.js'
 
-const storeFile = async (file, metadata) => {
+const handleUpload = async (file, metadata) => {
   try {
     const path = await addObject(file, metadata.contentType)
 
@@ -13,5 +13,5 @@ const storeFile = async (file, metadata) => {
 }
 
 export {
-  storeFile
+  handleUpload
 }

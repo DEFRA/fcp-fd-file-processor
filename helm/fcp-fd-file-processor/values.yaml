@@ -26,6 +26,7 @@ container:
   limitMemory: 100Mi
   limitCpu: 100m
   port: 3037
+  dmzStorageAccountName:
 
 livenessProbe:
   path: /healthz

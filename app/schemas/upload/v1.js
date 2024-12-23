@@ -26,11 +26,11 @@ const checkFileType = async (value, helpers) => {
   }
 
   if (extension !== detected.ext) {
-    return helpers.message('Detected file extension does not match the provided file name')
+    return helpers.message(`Detected extension (.${detected.ext}) does not match the provided extension (.${extension})`)
   }
 
   if (mimeType !== detected.mime) {
-    return helpers.message('Detected mime type does not match the provided content type')
+    return helpers.message(`Detected type (${detected.mime}) does not match the provided type (${mimeType})`)
   }
 
   return value
@@ -42,7 +42,9 @@ const v1 = Joi.object({
       filename: Joi.string().required(),
       headers: Joi.object({
         'content-disposition': Joi.string().required(),
-        'content-type': Joi.string().valid(...validFileTypes).required()
+        'content-type': Joi.string().valid(...validFileTypes).required().messages({
+          'any.only': '.message(`Unsupported content type. Supported types are: {{#valids}}`)'
+        })
       }).required()
     }).unknown().required(),
     _data: Joi.binary().required()
@@ -51,6 +53,6 @@ const v1 = Joi.object({
   crn: crn.optional(),
   sourceSystem: Joi.string().regex(/^[a-z0-9-_]+$/).required(),
   documentType: Joi.string().regex(/^[a-z0-9-_]+$/).required()
-})
+}).required()
 
 export default v1

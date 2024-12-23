@@ -1,6 +1,6 @@
 import { addObject } from '../repos/dmz.js'
 import { v1 as uploadSchema } from '../schemas/upload/index.js'
-import { handleUpload } from '../services/upload.js'
+import { handleFileUpload } from '../services/upload.js'
 
 const upload = {
   method: 'POST',
@@ -20,8 +20,14 @@ const upload = {
       },
       failAction: async (_, h, err) => {
         const errors = err.details.map(({ message }) => message)
+
+        let code = 400
+
+        if (errors.every(e => e.includes('Unsupported content type'))) {
+          code = 415
+        }
   
-        return h.response({ errors }).code(400).takeover()
+        return h.response({ errors }).code(code).takeover()
       }
     }
   },
@@ -29,7 +35,6 @@ const upload = {
     const payload = request.payload
 
     const data = payload.file._data
-    const contentType = payload.file.hapi.headers['content-type']
 
     const metadata = {
       filename: payload.file.hapi.filename,
@@ -39,10 +44,10 @@ const upload = {
 
     delete metadata.file
 
-    const path = await handleUpload(data, metadata)
+    const id = await handleFileUpload(data, metadata)
 
     return h.response({ 
-      path,
+      id,
       metadata
     }).code(201)
   }

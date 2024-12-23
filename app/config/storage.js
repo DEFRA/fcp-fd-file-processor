@@ -3,13 +3,13 @@ import convict from 'convict'
 import isProd from '../utils/is-prod.js'
 
 const storage = convict({
-  blob: {
-    endpoint: {
+  endpoint: {
+    blob: {
       doc: 'Azure Blob Storage Endpoint',
       format: String,
       default: process.env.USE_AZURITE === 'true'
-        ? `${process.env.AZURITE_BLOB_ENDPOINT}/?`
-        : 'https://?.blob.core.windows.net',
+        ? `${process.env.AZURITE_HOST}:${process.env.AZURITE_BLOB_PORT}/?`
+        : 'https://?.blob.core.windows.net'
     }
   },
   managedIdentityClientId: {
@@ -43,11 +43,12 @@ const storage = convict({
       default: false,
       env: 'USE_AZURITE'
     },
-    endpoint: {
-      doc: 'Azurite Blob Endpoint',
+    host: {
+      doc: 'Azurite host',
       format: String,
+      nullable: process.env.AZURITE_HOST !== 'true',
       default: null,
-      env: 'AZURITE_BLOB_ENDPOINT'
+      env: 'AZURITE_HOST'
     }
   }
 })

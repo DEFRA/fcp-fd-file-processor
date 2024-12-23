@@ -1,4 +1,3 @@
-import { addObject } from '../repos/dmz.js'
 import { v1 as uploadSchema } from '../schemas/upload/index.js'
 import { handleFileUpload } from '../services/upload.js'
 
@@ -26,7 +25,7 @@ const upload = {
         if (errors.every(e => e.includes('Unsupported content type'))) {
           code = 415
         }
-  
+
         return h.response({ errors }).code(code).takeover()
       }
     }
@@ -46,7 +45,7 @@ const upload = {
 
     const id = await handleFileUpload(data, metadata)
 
-    return h.response({ 
+    return h.response({
       id,
       metadata
     }).code(201)

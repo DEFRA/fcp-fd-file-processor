@@ -1,12 +1,11 @@
 import Joi from 'joi'
+import { fileTypeFromBuffer } from 'file-type'
 
 import { sbi, crn } from '../common/index.js'
-import { fileTypeFromBuffer } from 'file-type'
 import { getExtension } from '../../utils/files.js'
 
 const validFileTypes = [
-  'application/pdf',
-  'text/plain'
+  'application/pdf'
 ]
 
 const checkFileType = async (value, helpers) => {
@@ -20,10 +19,6 @@ const checkFileType = async (value, helpers) => {
   }
 
   const detected = await fileTypeFromBuffer(value._data)
-
-  if (!detected) {
-    return value
-  }
 
   if (extension !== detected.ext) {
     return helpers.message(`Detected extension (.${detected.ext}) does not match the provided extension (.${extension})`)

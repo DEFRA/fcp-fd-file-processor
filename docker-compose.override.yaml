@@ -25,9 +25,7 @@ services:
     container_name: fcp-fd-file-processor-azurite-development
     environment:
       AZURITE_ACCOUNTS: >
-        ${DMZ_STORAGE_ACCOUNT_NAME:-dmz}:${AZURITE_ACCESS_KEY:-test};
-        ${CLN_STORAGE_ACCOUNT_NAME:-cln}:${AZURITE_ACCESS_KEY:-test};
-        ${MAL_STORAGE_ACCOUNT_NAME:-mal}:${AZURITE_ACCESS_KEY:-test}
+        ${DMZ_STORAGE_ACCOUNT_NAME:-dmz}:${AZURITE_ACCESS_KEY:-test};${CLN_STORAGE_ACCOUNT_NAME:-cln}:${AZURITE_ACCESS_KEY:-test};${MAL_STORAGE_ACCOUNT_NAME:-mal}:${AZURITE_ACCESS_KEY:-test}
     volumes:
       - azurite_data:/data
 

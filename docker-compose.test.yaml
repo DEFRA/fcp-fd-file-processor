@@ -27,6 +27,4 @@ services:
     container_name: fcp-fd-file-processor-azurite-test
     environment:
       AZURITE_ACCOUNTS: >
-        dmz:test;
-        cln:test;
-        mal:test
+        dmz:test;cln:test;mal:test

@@ -144,7 +144,6 @@ describe('upload schema', () => {
       try {
         await v1.validateAsync(payload, { abortEarly: false })
       } catch (err) {
-        console.log(err)
         error = err
       }
 

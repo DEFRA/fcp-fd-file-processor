@@ -42,22 +42,29 @@ describe('upload endpoint', () => {
 
       expect(response.result).toEqual({
         id: expect.any(String),
+        contentType: 'application/pdf',
         metadata: {
           filename: 'agreement.pdf',
-          contentType: 'application/pdf',
           sbi: 123456789,
           sourceSystem: 'test',
           documentType: 'agreement'
         }
       })
 
-      const blobClient = objects.getBlockBlobClient(response.result.id)
+      const client = objects.getBlockBlobClient(response.result.id)
 
-      const metadata = await blobClient.getProperties()
-      const blobResponse = await blobClient.downloadToBuffer()
+      const properties = await client.getProperties()
+      const blob = await client.downloadToBuffer()
 
-      expect(metadata.contentType).toBe('application/pdf')
-      expect(blobResponse).toEqual(pdf)
+      expect(properties.contentType).toBe('application/pdf')
+      expect(properties.metadata).toEqual({
+        filename: 'agreement.pdf',
+        sbi: '123456789',
+        source_system: 'test',
+        document_type: 'agreement'
+      })
+
+      expect(blob).toEqual(pdf)
     })
 
     test('should return 400 if the request is invalid', async () => {

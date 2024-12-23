@@ -1,10 +1,10 @@
 import { addObject } from '../repos/dmz.js'
 
-const handleFileUpload = async (file, metadata) => {
+const handleFileUpload = async (file, contentType, metadata) => {
   try {
-    const path = await addObject(file, metadata.contentType)
+    const id = await addObject(file, contentType, metadata)
 
-    return path
+    return id
   } catch (err) {
     console.error(err)
 

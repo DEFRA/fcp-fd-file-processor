@@ -15,15 +15,14 @@ describe('file upload service', () => {
 
     const metadata = {
       filename: 'test.pdf',
-      contentType: 'application/pdf',
       sbi: 123456789,
       sourceSystem: 'test',
       documentType: 'agreement'
     }
 
-    await handleFileUpload(data, metadata)
+    await handleFileUpload(data, 'application/pdf', metadata)
 
-    expect(addObject).toHaveBeenCalledWith(data, 'application/pdf')
+    expect(addObject).toHaveBeenCalledWith(data, 'application/pdf', metadata)
   })
 
   test('should throw an error if the file upload fails', async () => {
@@ -31,7 +30,6 @@ describe('file upload service', () => {
 
     const metadata = {
       filename: 'test.pdf',
-      contentType: 'application/pdf',
       sbi: 123456789,
       sourceSystem: 'test',
       documentType: 'agreement'
@@ -39,6 +37,6 @@ describe('file upload service', () => {
 
     addObject.mockRejectedValue(new Error('Failed to upload file'))
 
-    await expect(handleFileUpload(data, metadata)).rejects.toThrow('Failed to upload file')
+    await expect(handleFileUpload(data, 'application/pdf', metadata)).rejects.toThrow('Failed to upload file')
   })
 })

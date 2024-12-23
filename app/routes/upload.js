@@ -34,18 +34,20 @@ const upload = {
 
     const data = payload.file._data
 
+    const contentType = payload.file.hapi.headers['content-type']
+
     const metadata = {
       filename: payload.file.hapi.filename,
-      contentType: payload.file.hapi.headers['content-type'],
       ...request.payload
     }
 
     delete metadata.file
 
-    const id = await handleFileUpload(data, metadata)
+    const id = await handleFileUpload(data, contentType, metadata)
 
     return h.response({
       id,
+      contentType,
       metadata
     }).code(201)
   }

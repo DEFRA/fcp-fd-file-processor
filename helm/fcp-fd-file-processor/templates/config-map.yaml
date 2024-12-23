@@ -4,5 +4,6 @@ data:
   NODE_ENV: {{ quote .Values.environment }}
   PORT: {{ quote .Values.container.port }}
   APPINSIGHTS_CLOUDROLE: {{ quote .Values.name }}
+  DMZ_STORAGE_ACCOUNT_NAME: {{ .Values.container.dmzStorageAccountName }}
   MANAGED_IDENTITY_CLIENT_ID: {{ quote .Values.azureIdentity.clientID }}
 {{- end -}}

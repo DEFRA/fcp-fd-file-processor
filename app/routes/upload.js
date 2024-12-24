@@ -48,7 +48,7 @@ const upload = {
     if (err) {
       if (err.cause === MALICIOUS_FILE) {
         return h.response({
-          error: 'Uploaded file has been identified as malicious'
+          errors: ['Uploaded file has been identified as malicious']
         }).code(400)
       }
 

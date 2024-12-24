@@ -173,7 +173,7 @@ describe('upload endpoint', () => {
       expect(response.statusCode).toBe(400)
 
       expect(response.result).toEqual({
-        error: 'Uploaded file has been identified as malicious'
+        errors: ['Uploaded file has been identified as malicious']
       })
 
       const id = `${generatedIds[0]}/${generatedIds[1]}`

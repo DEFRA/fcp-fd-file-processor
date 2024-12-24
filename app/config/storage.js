@@ -77,6 +77,12 @@ const storage = convict({
       default: null,
       env: 'AZURITE_BLOB_PORT'
     }
+  },
+  allowTextFiles: {
+    doc: 'Allow text files in development - Intended for testing Azure Blob Storage malware scanning',
+    format: Boolean,
+    default: false,
+    env: 'ALLOW_TEXT_FILES'
   }
 })
 

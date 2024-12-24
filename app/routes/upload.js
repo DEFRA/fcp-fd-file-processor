@@ -45,10 +45,14 @@ const upload = {
 
     const [id, err] = await handleFileUpload(data, contentType, metadata)
 
-    if (err && err.cause === MALICIOUS_FILE) {
-      return h.response({
-        error: 'Uploaded file has been identified as malicious'
-      }).code(400)
+    if (err) {
+      if (err.cause === MALICIOUS_FILE) {
+        return h.response({
+          error: 'Uploaded file has been identified as malicious'
+        }).code(400)
+      }
+
+      throw err
     }
 
     return h.response({ id, contentType, metadata }).code(201)

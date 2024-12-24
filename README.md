@@ -27,6 +27,7 @@ These configuration values should be set in the docker-compose.yaml file or Helm
 | DMZ_STORAGE_ACCESS_KEY    | (no default value)                                     | No                        | Access key to DMZ storage account (should only be used for local development)|
 | MANAGED_IDENTITY_CLIENT_ID| (no default value)                                     | Yes - If production build | Managed identity client ID                                                 |
 | OBJECTS_CONTAINER_NAME    | objects                                                | No                        | Optional container name override. Intended to be overridden with dev suffix if using a shared storage account. |
+| ALLOW_TEXT_FILES          | false                                                  | No                        | Flag to allow text files to be uploaded. Intended to allow testing of malware scanning. |
 
 ## Running the application
 

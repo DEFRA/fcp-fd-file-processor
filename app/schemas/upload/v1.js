@@ -5,11 +5,13 @@ import { sbi, crn } from '../common/index.js'
 import { getExtension } from '../../utils/files.js'
 import storage from '../../config/storage.js'
 
+const allowTextFiles = storage.get('allowTextFiles')
+
 const validFileTypes = [
   'application/pdf'
 ]
 
-if (storage.get('allowTextFiles')) {
+if (allowTextFiles) {
   validFileTypes.push('text/plain')
 }
 
@@ -19,8 +21,10 @@ const checkFileType = async (value, helpers) => {
   const extension = getExtension(filename)
   const mimeType = headers['content-type']
 
-  if (extension === 'txt' && mimeType === 'text/plain') {
-    return value
+  if (allowTextFiles) {
+    if (extension === 'txt' && mimeType === 'text/plain') {
+      return value
+    }
   }
 
   const detected = await fileTypeFromBuffer(value._data)

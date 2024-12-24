@@ -1,0 +1,119 @@
+openapi: 3.0.0
+
+info:
+  title: Single Front Door (SFD) File Processor
+  version: 1.0.0
+  description: Handles file uploads with metadata for the fcp-fd-file-processor microservice.
+
+paths: 
+  /upload:
+    post:
+      tags:
+        - Upload
+      summary: Upload a file with metadata
+      description: Accepts file upload requests with metadata via HTTP using the form-data method.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - sbi
+                - sourceSystem
+                - documentType
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File / blob to be uploaded.
+                sbi:  
+                  $ref: '#/components/schemas/sbi'
+                crn:
+                  $ref: '#/components/schemas/crn'
+                sourceSystem:
+                  $ref: '#/components/schemas/sourceSystem'
+                documentType:
+                  $ref: '#/components/schemas/documentType'
+            encoding:
+              file:
+                contentType: application/pdf
+                headers:
+                  Content-Disposition:
+                    schema:
+                      type: string
+                      format: binary
+                      example: form-data; name="file"; filename="example.pdf"
+      responses:
+        '200':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  path: 
+                    type: string
+                    description: SFD identifier for the uploaded file.
+                    example: "f2733300-9a0a-40d7-9922-32c74e518eb3/3a826edd-0ce0-488e-ab2b-d28cd37a9be6"
+        '400':
+          description: File upload request is invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "File upload failed."
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                      example:
+                        - Property 'sbi' is required.
+                        - The uploaded file has been flagged as potentially malicious. 
+        '415':
+          description: Unsupported media type.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Content-Type 'application/zip' is not supported."
+
+components:
+  schemas:
+    file:
+      type: string
+      format: binary
+      description: File / blob to be uploaded.
+    sbi:
+      type: number
+      description: Single Business Identifier (consists of 9 digits)
+      minimum: 105000000
+      maximum: 999999999
+      example: 123456789
+    crn:
+      type: number
+      description: Customer Reference Number (consists of 10 digits)
+      minimum: 1050000000
+      maximum: 9999999999
+      example: 1234567890
+    sourceSystem:
+      type: string
+      description: Name of the source system that originated the message
+      example: "ahwp"
+      minLength: 3
+      maxLength: 100
+      pattern: "^[a-z0-9-_]+$"
+    documentType:
+      type: string
+      description: The type of document being uploaded
+      minLength: 3
+      maxLength: 100
+      pattern: "^[a-z0-9-_]+$"
+      example: "agreement"

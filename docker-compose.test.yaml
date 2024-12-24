@@ -16,3 +16,15 @@ services:
       - ./package.json:/home/node/package.json
     environment:
       NODE_OPTIONS: "$NODE_OPTIONS --experimental-vm-modules"
+      AZURITE_ENABLED: true
+      AZURITE_HOST: "http://fcp-fd-file-processor-azurite-test"
+      AZURITE_BLOB_PORT: 10000
+      USE_AZURITE: true
+      AZURITE_ACCESS_KEY: "test"
+      DMZ_STORAGE_ACCOUNT_NAME: "dmz"
+    
+  fcp-fd-file-processor-azurite:
+    container_name: fcp-fd-file-processor-azurite-test
+    environment:
+      AZURITE_ACCOUNTS: >
+        dmz:test;cln:test;mal:test

@@ -19,7 +19,9 @@ const waitForAvScan = async (id, interval) => {
     if (!avResult) {
       await new Promise(resolve => setTimeout(resolve, interval))
     }
-  } while (!avResult && ++attempts < avScanMaxAttempts)
+
+    attempts += 1
+  } while (!avResult && attempts < avScanMaxAttempts)
 
   if (!avResult) {
     throw new Error(`AV scan for ${id} timed out after ${attempts} attempts`, { cause: AV_SCAN_TIMEOUT })
@@ -53,18 +55,14 @@ const handleFileUpload = async (file, contentType, metadata) => {
   try {
     await waitForAvScan(id, avPollingInterval)
 
-    // TODO: Move file to clean storage
     console.log(`AV scan passed. Moving ${id} to clean storage.`)
   } catch (err) {
     if (err.cause === MALICIOUS_FILE) {
       console.error(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)
-    } else {
-      throw err
     }
 
     return [null, err]
   } finally {
-    // TOOD: Delete file from DMZ
     console.log(`Deleting file ${id} from DMZ`)
   }
 

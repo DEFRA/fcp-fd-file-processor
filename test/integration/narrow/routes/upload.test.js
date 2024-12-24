@@ -92,6 +92,40 @@ describe('upload endpoint', () => {
       ]))
     })
 
+    test('should return 400 if formdata is empty', async () => {
+      const formData = new FormData()
+
+      const response = await server.inject({
+        method: 'POST',
+        url: '/upload',
+        payload: formData.getBuffer(),
+        headers: {
+          ...formData.getHeaders(),
+          'Content-Length': formData.getLengthSync()
+        }
+      })
+
+      expect(response.statusCode).toBe(400)
+
+      const { errors } = response.result
+
+      expect(errors).toEqual([
+        '"file" is required',
+        '"sbi" is required',
+        '"sourceSystem" is required',
+        '"documentType" is required'
+      ])
+    })
+
+    test('should return 415 if no payload is provided', async () => {
+      const response = await server.inject({
+        method: 'POST',
+        url: '/upload'
+      })
+
+      expect(response.statusCode).toBe(415)
+    })
+
     test('should return 415 if the content type is not supported', async () => {
       const formData = new FormData()
 

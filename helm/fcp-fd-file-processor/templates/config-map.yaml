@@ -7,5 +7,6 @@ data:
   DMZ_STORAGE_ACCOUNT_NAME: {{ .Values.container.dmzStorageAccountName }}
   AV_SCAN_POLLING_INTERVAL: {{ .Values.container.avScanPollingInterval }}
   AV_SCAN_MAX_ATTEMPTS: {{ .Values.container.avScanMaxAttempts }}
+  ALLOW_TEXT_FILES: {{ .Values.container.allowTextFiles }}
   MANAGED_IDENTITY_CLIENT_ID: {{ quote .Values.azureIdentity.clientID }}
 {{- end -}}

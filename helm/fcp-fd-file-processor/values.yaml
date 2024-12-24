@@ -48,7 +48,6 @@ azureIdentity:
   resourceID: not-a-real-clientID
   clientID: not-a-real-clientID
 
-
 ingress:
   class: nginx
   endpoint: fcp-fd-file-processor

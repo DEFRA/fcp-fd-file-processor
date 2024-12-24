@@ -21,10 +21,8 @@ const checkFileType = async (value, helpers) => {
   const extension = getExtension(filename)
   const mimeType = headers['content-type']
 
-  if (allowTextFiles) {
-    if (extension === 'txt' && mimeType === 'text/plain') {
-      return value
-    }
+  if (extension === 'txt' && mimeType === 'text/plain') {
+    return value
   }
 
   const detected = await fileTypeFromBuffer(value._data)

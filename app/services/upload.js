@@ -13,7 +13,7 @@ const waitForAvScan = async (id, interval) => {
     try {
       avResult = await getAvScanStatus(id)
     } catch (err) {
-      console.error(`An error occurred while polling AV scan status for ${id}`, err)
+      console.error(`An error occurred while polling AV scan status for ${id}:`, err)
     }
 
     if (!avResult) {

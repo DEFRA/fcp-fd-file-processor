@@ -58,6 +58,31 @@ describe('file upload service', () => {
     await expect(handleFileUpload(data, 'application/pdf', metadata)).rejects.toThrow('Failed to upload file')
   })
 
+  test('should log error if getAvScanStatus fails', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error')
+
+    const data = pdf
+
+    const metadata = {
+      filename: 'test.pdf',
+      sbi: 123456789,
+      sourceSystem: 'test',
+      documentType: 'agreement'
+    }
+
+    const mockError = new Error('Failed to get AV scan status')
+
+    const id = '0230964f-ee67-4c70-920e-84847200140d/af173eb1-e1dc-44dc-ab51-ff8a817371b2'
+
+    addObject.mockResolvedValue(id)
+    getAvScanStatus.mockRejectedValue(mockError)
+
+    await handleFileUpload(data, 'application/pdf', metadata)
+
+    expect(addObject).toHaveBeenCalledWith(data, 'application/pdf', metadata)
+    expect(consoleErrorSpy).toHaveBeenCalledWith(`An error occurred while polling AV scan status for ${id}:`, mockError)
+  })
+
   afterAll(() => {
     process.env = originalEnv
   })

@@ -27,6 +27,8 @@ container:
   limitCpu: 100m
   port: 3037
   dmzStorageAccountName:
+  avScanPollingInterval: 5000
+  avScanMaxAttempts: 10
 
 livenessProbe:
   path: /healthz

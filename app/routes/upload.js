@@ -1,6 +1,7 @@
 import { v1 as uploadSchema } from '../schemas/upload/index.js'
 import { handleFileUpload } from '../services/upload.js'
 import { MAX_FILE_SIZE } from '../constants/file.js'
+import { MALICIOUS_FILE } from '../constants/av-results.js'
 
 const upload = {
   method: 'POST',
@@ -33,23 +34,24 @@ const upload = {
     const payload = request.payload
 
     const data = payload.file._data
-
     const contentType = payload.file.hapi.headers['content-type']
 
     const metadata = {
       filename: payload.file.hapi.filename,
-      ...request.payload
+      ...payload
     }
 
     delete metadata.file
 
-    const id = await handleFileUpload(data, contentType, metadata)
+    const [id, err] = await handleFileUpload(data, contentType, metadata)
 
-    return h.response({
-      id,
-      contentType,
-      metadata
-    }).code(201)
+    if (err && err.cause === MALICIOUS_FILE) {
+      return h.response({
+        error: 'Uploaded file has been identified as malicious'
+      }).code(400)
+    }
+
+    return h.response({ id, contentType, metadata }).code(201)
   }
 }
 

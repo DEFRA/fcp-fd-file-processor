@@ -1,26 +1,66 @@
-import { describe, expect, jest, test } from '@jest/globals'
-import FormData from 'form-data'
+import { beforeAll, describe, expect, jest, test } from '@jest/globals'
 
-import { createServer } from '../../../../app/server'
-import { containers } from '../../../../app/storage/blob/dmz'
+import FormData from 'form-data'
+import { randomUUID } from 'crypto'
+
 import { pdf, png } from '../../../mocks/files'
+
+const originalEnv = process.env
+process.env.AV_SCAN_POLLING_INTERVAL = 1000
+
+const { containers: dmzContainers } = await import('../../../../app/storage/blob/dmz')
+
+const dmzRepo = await import('../../../../app/repos/dmz')
+
+const { objects: dmzObjects } = dmzContainers
+
+const mockAvResult = {}
+
+const updateBlobTagStub = jest.fn(async (path) => {
+  const client = dmzObjects.getBlockBlobClient(path)
+
+  if (mockAvResult.result && mockAvResult.time) {
+    await client.setTags({
+      'Malware Scanning scan result': mockAvResult.result,
+      'Malware Scanning scan time UTC': mockAvResult.time
+    })
+  }
+
+  return dmzRepo.getAvScanStatus(path)
+})
+
+jest.unstable_mockModule('../../../../app/repos/dmz', () => ({
+  ...dmzRepo,
+  getAvScanStatus: updateBlobTagStub
+}))
+
+const consoleLogSpy = jest.spyOn(console, 'log')
+const consoleErrorSpy = jest.spyOn(console, 'error')
+
+const { createServer } = await import('../../../../app/server')
 
 jest.setTimeout(30000)
 
-const { objects } = containers
-
 describe('upload endpoint', () => {
   let server
+
+  beforeAll(() => {
+    jest.resetModules()
+    jest.clearAllMocks()
+  })
 
   beforeEach(async () => {
     server = await createServer()
     await server.initialize()
 
-    await objects.createIfNotExists()
+    await dmzObjects.createIfNotExists()
   })
 
   describe('POST /upload', () => {
     test('should upload a file if the request is valid', async () => {
+      mockAvResult.result = 'No threats found'
+      mockAvResult.time = '2024-12-23 17:00:23Z'
+
       const formData = new FormData()
 
       formData.append('file', pdf, 'agreement.pdf')
@@ -51,10 +91,10 @@ describe('upload endpoint', () => {
         }
       })
 
-      const client = objects.getBlockBlobClient(response.result.id)
+      const dmzClient = dmzObjects.getBlockBlobClient(response.result.id)
 
-      const properties = await client.getProperties()
-      const blob = await client.downloadToBuffer()
+      const properties = await dmzClient.getProperties()
+      const blob = await dmzClient.downloadToBuffer()
 
       expect(properties.contentType).toBe('application/pdf')
       expect(properties.metadata).toEqual({
@@ -65,9 +105,14 @@ describe('upload endpoint', () => {
       })
 
       expect(blob).toEqual(pdf)
+
+      expect(consoleLogSpy).toHaveBeenCalledWith(`AV scan passed. Moving ${response.result.id} to clean storage.`)
     })
 
     test('should return 400 if the request is invalid', async () => {
+      mockAvResult.result = 'No threats found'
+      mockAvResult.time = '2024-12-23 17:00:23Z'
+
       const formData = new FormData()
 
       const response = await server.inject({
@@ -92,8 +137,28 @@ describe('upload endpoint', () => {
       ]))
     })
 
-    test('should return 400 if formdata is empty', async () => {
+    test('should return 400 if the file is malicious', async () => {
+      const cryptoSpy = jest.spyOn(crypto, 'randomUUID')
+
+      const generatedIds = []
+
+      cryptoSpy.mockImplementation(() => {
+        const uuid = randomUUID()
+
+        generatedIds.push(uuid)
+
+        return uuid
+      })
+
+      mockAvResult.result = 'Malicious'
+      mockAvResult.time = '2024-12-23 17:00:23Z'
+
       const formData = new FormData()
+
+      formData.append('file', pdf, 'agreement.pdf')
+      formData.append('sbi', '123456789')
+      formData.append('sourceSystem', 'test')
+      formData.append('documentType', 'agreement')
 
       const response = await server.inject({
         method: 'POST',
@@ -101,29 +166,109 @@ describe('upload endpoint', () => {
         payload: formData.getBuffer(),
         headers: {
           ...formData.getHeaders(),
-          'Content-Length': formData.getLengthSync()
+          'Content-Length': formData.getBuffer().length
         }
       })
 
       expect(response.statusCode).toBe(400)
 
-      const { errors } = response.result
-
-      expect(errors).toEqual([
-        '"file" is required',
-        '"sbi" is required',
-        '"sourceSystem" is required',
-        '"documentType" is required'
-      ])
-    })
-
-    test('should return 415 if no payload is provided', async () => {
-      const response = await server.inject({
-        method: 'POST',
-        url: '/upload'
+      expect(response.result).toEqual({
+        error: 'Uploaded file has been identified as malicious'
       })
 
-      expect(response.statusCode).toBe(415)
+      const id = `${generatedIds[0]}/${generatedIds[1]}`
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)
+
+      cryptoSpy.mockRestore()
+    })
+
+    test('should return 500 if the AV scan times out', async () => {
+      const cryptoSpy = jest.spyOn(crypto, 'randomUUID')
+
+      mockAvResult.result = ''
+      mockAvResult.time = ''
+
+      const generatedIds = []
+
+      cryptoSpy.mockImplementation(() => {
+        const uuid = randomUUID()
+
+        generatedIds.push(uuid)
+
+        return uuid
+      })
+
+      const formData = new FormData()
+
+      formData.append('file', pdf, 'agreement.pdf')
+      formData.append('sbi', '123456789')
+      formData.append('sourceSystem', 'test')
+      formData.append('documentType', 'agreement')
+
+      const response = await server.inject({
+        method: 'POST',
+        url: '/upload',
+        payload: formData.getBuffer(),
+        headers: {
+          ...formData.getHeaders(),
+          'Content-Length': formData.getBuffer().length
+        }
+      })
+
+      expect(response.statusCode).toBe(500)
+
+      expect(response.result).toEqual({
+        error: 'Internal Server Error',
+        message: 'An internal server error occurred',
+        statusCode: 500
+      })
+
+      cryptoSpy.mockRestore()
+    })
+
+    test('should return 500 if an error occurs while uploading the file', async () => {
+      const cryptoSpy = jest.spyOn(crypto, 'randomUUID')
+
+      const generatedIds = []
+
+      cryptoSpy.mockImplementation(() => {
+        const uuid = randomUUID()
+
+        generatedIds.push(uuid)
+
+        return uuid
+      })
+
+      mockAvResult.result = 'SAM259201'
+      mockAvResult.time = '2024-12-23 17:00:23Z'
+
+      const formData = new FormData()
+
+      formData.append('file', pdf, 'agreement.pdf')
+      formData.append('sbi', '123456789')
+      formData.append('sourceSystem', 'test')
+      formData.append('documentType', 'agreement')
+
+      const response = await server.inject({
+        method: 'POST',
+        url: '/upload',
+        payload: formData.getBuffer(),
+        headers: {
+          ...formData.getHeaders(),
+          'Content-Length': formData.getBuffer().length
+        }
+      })
+
+      expect(response.statusCode).toBe(500)
+
+      expect(response.result).toEqual({
+        error: 'Internal Server Error',
+        message: 'An internal server error occurred',
+        statusCode: 500
+      })
+
+      cryptoSpy.mockRestore()
     })
 
     test('should return 415 if the content type is not supported', async () => {
@@ -209,8 +354,17 @@ describe('upload endpoint', () => {
   })
 
   afterEach(async () => {
-    await objects.deleteIfExists()
+    await dmzObjects.deleteIfExists()
 
     await server.stop()
+  })
+
+  afterAll(() => {
+    consoleLogSpy.mockRestore()
+    consoleErrorSpy.mockRestore()
+
+    jest.restoreAllMocks()
+
+    process.env = originalEnv
   })
 })

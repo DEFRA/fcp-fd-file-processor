@@ -1,23 +1,22 @@
 import { beforeAll, describe, expect, jest, test } from '@jest/globals'
 
+import * as dmzStorage from '../../../../app/storage/blob/dmz.js'
+import * as malStorage from '../../../../app/storage/blob/malicious.js'
+
 import FormData from 'form-data'
 import { randomUUID } from 'crypto'
 
 import { pdf, png } from '../../../mocks/files'
 
-const originalEnv = process.env
-process.env.AV_SCAN_POLLING_INTERVAL = 1000
-
-const { containers: dmzContainers } = await import('../../../../app/storage/blob/dmz')
+const { containers: dmzContainers } = dmzStorage
+const { containers: malContainers } = malStorage
 
 const dmzRepo = await import('../../../../app/repos/dmz')
-
-const { objects: dmzObjects } = dmzContainers
 
 const mockAvResult = {}
 
 const updateBlobTagStub = jest.fn(async (path) => {
-  const client = dmzObjects.getBlockBlobClient(path)
+  const client = dmzContainers.objects.getBlockBlobClient(path)
 
   if (mockAvResult.result && mockAvResult.time) {
     await client.setTags({
@@ -53,7 +52,8 @@ describe('upload endpoint', () => {
     server = await createServer()
     await server.initialize()
 
-    await dmzObjects.createIfNotExists()
+    await dmzStorage.createDmzContainers()
+    await malStorage.createMalContainers()
   })
 
   describe('POST /upload', () => {
@@ -91,7 +91,7 @@ describe('upload endpoint', () => {
         }
       })
 
-      const dmzClient = dmzObjects.getBlockBlobClient(response.result.id)
+      const dmzClient = dmzContainers.objects.getBlockBlobClient(response.result.id)
 
       const properties = await dmzClient.getProperties()
       const blob = await dmzClient.downloadToBuffer()
@@ -178,7 +178,22 @@ describe('upload endpoint', () => {
 
       const id = `${generatedIds[0]}/${generatedIds[1]}`
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)
+      expect(consoleLogSpy).toHaveBeenCalledWith(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)
+
+      const malClient = malContainers.objects.getBlockBlobClient(id)
+
+      const properties = await malClient.getProperties()
+      const blob = await malClient.downloadToBuffer()
+
+      expect(properties.contentType).toBe('application/pdf')
+      expect(properties.metadata).toEqual({
+        filename: 'agreement.pdf',
+        sbi: '123456789',
+        source_system: 'test',
+        document_type: 'agreement'
+      })
+
+      expect(blob).toEqual(pdf)
 
       cryptoSpy.mockRestore()
     })
@@ -354,7 +369,7 @@ describe('upload endpoint', () => {
   })
 
   afterEach(async () => {
-    await dmzObjects.deleteIfExists()
+    await dmzContainers.objects.deleteIfExists()
 
     await server.stop()
   })
@@ -364,7 +379,5 @@ describe('upload endpoint', () => {
     consoleErrorSpy.mockRestore()
 
     jest.restoreAllMocks()
-
-    process.env = originalEnv
   })
 })

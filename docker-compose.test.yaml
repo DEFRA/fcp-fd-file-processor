@@ -19,9 +19,11 @@ services:
       AZURITE_ENABLED: true
       AZURITE_HOST: "http://fcp-fd-file-processor-azurite-test"
       AZURITE_BLOB_PORT: 10000
+      AV_SCAN_POLLING_INTERVAL: 50
       USE_AZURITE: true
       AZURITE_ACCESS_KEY: "test"
       DMZ_STORAGE_ACCOUNT_NAME: "dmz"
+      MAL_STORAGE_ACCOUNT_NAME: "mal"
     
   fcp-fd-file-processor-azurite:
     container_name: fcp-fd-file-processor-azurite-test

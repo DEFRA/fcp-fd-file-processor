@@ -16,11 +16,14 @@ const parseAvStatus = (status) => {
   }
 }
 
-const addObject = async (file, contentType, metadata) => {
-  const folderName = crypto.randomUUID()
-  const blobName = crypto.randomUUID()
+const addObject = async (file, contentType, metadata, path) => {
+  path = path ?? `${crypto.randomUUID()}/${crypto.randomUUID()}`
 
-  const path = `${folderName}/${blobName}`
+  const components = path.split('/')
+
+  if (components.length !== 2) {
+    throw new Error('Invalid path. Path must be in the format of folder/filename')
+  }
 
   const blob = objects.getBlockBlobClient(path)
 

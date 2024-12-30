@@ -19,7 +19,7 @@ const parseAvStatus = (status) => {
 const addObject = async (file, contentType, metadata, path) => {
   path = path ?? `${crypto.randomUUID()}/${crypto.randomUUID()}`
 
-  const components = path.split('/')
+  const components = path?.split('/')
 
   if (components.length !== 2) {
     throw new Error('Invalid path. Path must be in the format of folder/filename')

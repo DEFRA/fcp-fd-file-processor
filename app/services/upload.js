@@ -1,6 +1,17 @@
 import storage from '../config/storage.js'
-import { AV_SCAN_TIMEOUT, CLEAN_FILE, MALICIOUS_FILE } from '../constants/av-results.js'
-import { addObject as addDmzObject, getAvScanStatus } from '../repos/dmz.js'
+
+import {
+  AV_SCAN_TIMEOUT,
+  CLEAN_FILE,
+  MALICIOUS_FILE
+} from '../constants/av-results.js'
+
+import {
+  addObject as addDmzObject,
+  getAvScanStatus
+} from '../repos/dmz.js'
+
+import { addObject as addCleanObject } from '../repos/clean.js'
 import { addObject as addMalObject } from '../repos/malicious.js'
 
 const avPollingInterval = storage.get('dmz.avScanPollingInterval')
@@ -50,6 +61,15 @@ const uploadFile = async (file, contentType, metadata) => {
   }
 }
 
+const moveToCleanStorage = async (id, file, contentType, metadata) => {
+  try {
+    await addCleanObject(file, contentType, metadata, id)
+  } catch (err) {
+    console.error('An error occurred while moving to clean storage:', err)
+    throw err
+  }
+}
+
 const moveToQuarantine = async (id, file, contentType, metadata) => {
   try {
     await addMalObject(file, contentType, metadata, id)
@@ -66,6 +86,7 @@ const handleFileUpload = async (file, contentType, metadata) => {
     await waitForAvScan(id, avPollingInterval)
 
     console.log(`AV scan passed. Moving ${id} to clean storage.`)
+    await moveToCleanStorage(id, file, contentType, metadata)
   } catch (err) {
     if (err.cause === MALICIOUS_FILE) {
       console.log(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)

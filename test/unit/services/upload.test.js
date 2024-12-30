@@ -10,12 +10,18 @@ jest.unstable_mockModule('../../../app/repos/dmz', () => ({
   getAvScanStatus: jest.fn()
 }))
 
+jest.unstable_mockModule('../../../app/repos/clean', () => ({
+  addObject: jest.fn(),
+  deleteObject: jest.fn()
+}))
+
 jest.unstable_mockModule('../../../app/repos/malicious', () => ({
   addObject: jest.fn(),
   deleteObject: jest.fn()
 }))
 
 const { addObject: addDmzObject, getAvScanStatus } = await import('../../../app/repos/dmz')
+const { addObject: addCleanObject } = await import('../../../app/repos/clean')
 const { addObject: addMalObject } = await import('../../../app/repos/malicious')
 const { handleFileUpload } = await import('../../../app/services/upload')
 
@@ -64,6 +70,60 @@ describe('file upload service', () => {
 
     await expect(handleFileUpload(data, 'application/pdf', metadata)).rejects.toThrow(mockError.message)
     expect(consoleErrorSpy).toHaveBeenCalledWith('An error occurred while uploading to DMZ:', mockError)
+  })
+
+  test('should move a file to clean storage if it is identified as clean', async () => {
+    const data = pdf
+
+    const metadata = {
+      filename: 'test.pdf',
+      sbi: 123456789,
+      sourceSystem: 'test',
+      documentType: 'agreement'
+    }
+
+    const id = '0230964f-ee67-4c70-920e-84847200140d/af173eb1-e1dc-44dc-ab51-ff8a817371b2'
+
+    addDmzObject.mockResolvedValue(id)
+
+    getAvScanStatus.mockResolvedValue({
+      status: 'CLEAN_FILE',
+      time: '2024-12-23 17:00:23Z'
+    })
+
+    await handleFileUpload(data, 'application/pdf', metadata)
+
+    expect(addDmzObject).toHaveBeenCalledWith(data, 'application/pdf', metadata)
+    expect(addCleanObject).toHaveBeenCalledWith(data, 'application/pdf', metadata, id)
+  })
+
+  test('should return an error if moving the file to clean storage fails', async () => {
+    const data = pdf
+
+    const metadata = {
+      filename: 'test.pdf',
+      sbi: 123456789,
+      sourceSystem: 'test',
+      documentType: 'agreement'
+    }
+
+    const id = '0230964f-ee67-4c70-920e-84847200140d/af173eb1-e1dc-44dc-ab51-ff8a817371b2'
+
+    getAvScanStatus.mockResolvedValue({
+      status: 'CLEAN_FILE',
+      time: '2024-12-23 17:00:23Z'
+    })
+
+    addDmzObject.mockResolvedValue(id)
+
+    const mockError = new Error('Failed to move file to clean storage')
+
+    addCleanObject.mockRejectedValue(mockError)
+
+    const [res, error] = await handleFileUpload(data, 'application/pdf', metadata)
+
+    expect(res).toBeFalsy()
+    expect(error).toEqual(mockError)
   })
 
   test('should move a file to quarantine if it is identified as malicious', async () => {

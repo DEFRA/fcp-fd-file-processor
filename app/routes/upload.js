@@ -52,6 +52,8 @@ const upload = {
         }).code(400)
       }
 
+      console.error('An error occurred while processing the file:', err)
+
       throw err
     }
 

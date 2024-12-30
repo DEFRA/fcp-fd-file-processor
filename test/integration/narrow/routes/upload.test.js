@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, jest, test } from '@jest/globals'
 
 import * as dmzStorage from '../../../../app/storage/blob/dmz.js'
+import * as cleanStorage from '../../../../app/storage/blob/clean.js'
 import * as malStorage from '../../../../app/storage/blob/malicious.js'
 
 import FormData from 'form-data'
@@ -9,6 +10,7 @@ import { randomUUID } from 'crypto'
 import { pdf, png } from '../../../mocks/files'
 
 const { containers: dmzContainers } = dmzStorage
+const { containers: cleanContainers } = cleanStorage
 const { containers: malContainers } = malStorage
 
 const dmzRepo = await import('../../../../app/repos/dmz')
@@ -53,6 +55,7 @@ describe('upload endpoint', () => {
     await server.initialize()
 
     await dmzStorage.createDmzContainers()
+    await cleanStorage.createCleanContainers()
     await malStorage.createMalContainers()
   })
 
@@ -91,10 +94,10 @@ describe('upload endpoint', () => {
         }
       })
 
-      const dmzClient = dmzContainers.objects.getBlockBlobClient(response.result.id)
+      const cleanClient = cleanContainers.objects.getBlockBlobClient(response.result.id)
 
-      const properties = await dmzClient.getProperties()
-      const blob = await dmzClient.downloadToBuffer()
+      const properties = await cleanClient.getProperties()
+      const blob = await cleanClient.downloadToBuffer()
 
       expect(properties.contentType).toBe('application/pdf')
       expect(properties.metadata).toEqual({

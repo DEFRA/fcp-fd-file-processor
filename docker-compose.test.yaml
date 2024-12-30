@@ -23,6 +23,7 @@ services:
       USE_AZURITE: true
       AZURITE_ACCESS_KEY: "test"
       DMZ_STORAGE_ACCOUNT_NAME: "dmz"
+      CLN_STORAGE_ACCOUNT_NAME: "cln"
       MAL_STORAGE_ACCOUNT_NAME: "mal"
     
   fcp-fd-file-processor-azurite:

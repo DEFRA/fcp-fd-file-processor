@@ -48,6 +48,23 @@ const storage = convict({
       env: 'AV_SCAN_MAX_ATTEMPTS'
     }
   },
+  clean: {
+    accountName: {
+      doc: 'Clean Azure Storage Account Name',
+      format: String,
+      default: null,
+      env: 'CLN_STORAGE_ACCOUNT_NAME'
+    },
+    accessKey: {
+      doc: 'Clean Azure Storage Account Access Key - Should only be used in local development',
+      format: String,
+      nullable: true,
+      default: null,
+      env: process.env.USE_AZURITE === 'true'
+        ? 'AZURITE_ACCESS_KEY'
+        : 'CLN_STORAGE_ACCESS_KEY'
+    }
+  },
   malicious: {
     accountName: {
       doc: 'Malicious Azure Storage Account Name',

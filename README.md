@@ -25,6 +25,8 @@ These configuration values should be set in the docker-compose.yaml file or Helm
 | AZURITE_ACCESS_KEY        | test                                                   | No                        | Access key for Azurite                                                     |
 | DMZ_STORAGE_ACCOUNT_NAME  | dmz                                                    | Yes                       | The name of the DMZ storage account                                        |
 | DMZ_STORAGE_ACCESS_KEY    | (no default value)                                     | No                        | Access key to DMZ storage account (should only be used for local development)|
+| CLN_STORAGE_ACCOUNT_NAME  | cln                                                    | Yes                       | The name of the CLN storage account                                        |
+| CLN_STORAGE_ACCESS_KEY    | (no default value)                                     | No                        | Access key to CLN storage account (should only be used for local development)|
 | MAL_STORAGE_ACCOUNT_NAME  | mal                                                    | Yes                       | The name of the MAL storage account                                        |
 | MAL_STORAGE_ACCESS_KEY    | (no default value)                                     | No                        | Access key to MAL storage account (should only be used for local development)|
 | MANAGED_IDENTITY_CLIENT_ID| (no default value)                                     | Yes - If production build | Managed identity client ID                                                 |

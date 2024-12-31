@@ -8,7 +8,7 @@ import FormData from 'form-data'
 import { randomUUID } from 'crypto'
 
 import { pdf, png } from '../../../mocks/files'
-import { getBlob } from '../../../helper/blob.js'
+import { getBlob } from '../../../helpers/blob.js'
 
 const { containers: dmzContainers } = dmzStorage
 const { containers: cleanContainers } = cleanStorage

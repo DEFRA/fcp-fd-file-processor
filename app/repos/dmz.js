@@ -30,7 +30,7 @@ const getBlobTags = async (blob) => {
 }
 
 const addObject = async (file, contentType, metadata) => {
-  path = `${crypto.randomUUID()}/${crypto.randomUUID()}`
+  const path = `${crypto.randomUUID()}/${crypto.randomUUID()}`
 
   const blob = objects.getBlockBlobClient(path)
 

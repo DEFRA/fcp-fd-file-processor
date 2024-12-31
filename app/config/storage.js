@@ -34,6 +34,18 @@ const storage = convict({
       env: process.env.USE_AZURITE === 'true'
         ? 'AZURITE_ACCESS_KEY'
         : 'DMZ_STORAGE_ACCESS_KEY'
+    },
+    avScanPollingInterval: {
+      doc: 'AV Scan Polling Interval in milliseconds',
+      format: Number,
+      default: 5000,
+      env: 'AV_SCAN_POLLING_INTERVAL'
+    },
+    avScanMaxAttempts: {
+      doc: 'AV Scan Max Attempts',
+      format: Number,
+      default: 10,
+      env: 'AV_SCAN_MAX_ATTEMPTS'
     }
   },
   container: {
@@ -65,6 +77,12 @@ const storage = convict({
       default: null,
       env: 'AZURITE_BLOB_PORT'
     }
+  },
+  allowTextFiles: {
+    doc: 'Allow text files in development - Intended for testing Azure Blob Storage malware scanning',
+    format: Boolean,
+    default: false,
+    env: 'ALLOW_TEXT_FILES'
   }
 })
 

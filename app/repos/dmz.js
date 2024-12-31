@@ -73,7 +73,7 @@ const deleteObject = async (path) => {
 const getAvScanStatus = async (path) => {
   validateBlobPath(path)
 
-  return waitForAvScan(path, avPollingInterval)
+  return waitForAvScan(path)
 }
 
 export {

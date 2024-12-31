@@ -6,13 +6,9 @@ import {
   MALICIOUS_FILE
 } from '../constants/av-results.js'
 
-import {
-  addObject as addDmzObject,
-  getAvScanStatus
-} from '../repos/dmz.js'
-
-import { addObject as addCleanObject } from '../repos/clean.js'
-import { addObject as addMalObject } from '../repos/malicious.js'
+import * as dmzRepo from '../repos/dmz.js'
+import * as cleanRepo from '../repos/clean.js'
+import * as maliciousRepo from '../repos/malicious.js'
 
 const avPollingInterval = storage.get('dmz.avScanPollingInterval')
 const avScanMaxAttempts = storage.get('dmz.avScanMaxAttempts')
@@ -21,9 +17,9 @@ const waitForAvScan = async (id, interval) => {
   let avResult
   let attempts = 0
 
-  do {
+  while (!avResult && attempts < avScanMaxAttempts) {
     try {
-      avResult = await getAvScanStatus(id)
+      avResult = await dmzRepo.getAvScanStatus(id)
     } catch (err) {
       console.error(`An error occurred while polling AV scan status for ${id}:`, err)
     }
@@ -33,7 +29,7 @@ const waitForAvScan = async (id, interval) => {
     }
 
     attempts += 1
-  } while (!avResult && attempts < avScanMaxAttempts)
+  }
 
   if (!avResult) {
     throw new Error(`AV scan for ${id} timed out after ${attempts} attempts`, { cause: AV_SCAN_TIMEOUT })
@@ -49,56 +45,29 @@ const waitForAvScan = async (id, interval) => {
   }
 }
 
-const uploadFile = async (file, contentType, metadata) => {
-  try {
-    const id = await addDmzObject(file, contentType, metadata)
-
-    return id
-  } catch (err) {
-    console.error('An error occurred while uploading to DMZ:', err)
-
-    throw err
-  }
-}
-
-const moveToCleanStorage = async (id, file, contentType, metadata) => {
-  try {
-    await addCleanObject(file, contentType, metadata, id)
-  } catch (err) {
-    console.error('An error occurred while moving to clean storage:', err)
-    throw err
-  }
-}
-
-const moveToQuarantine = async (id, file, contentType, metadata) => {
-  try {
-    await addMalObject(file, contentType, metadata, id)
-  } catch (err) {
-    console.error('An error occurred while moving to quarantine:', err)
-    throw err
-  }
-}
-
 const handleFileUpload = async (file, contentType, metadata) => {
-  const id = await uploadFile(file, contentType, metadata)
+  const path = await dmzRepo.addObject(file, contentType, metadata)
 
   try {
-    await waitForAvScan(id, avPollingInterval)
+    await waitForAvScan(path, avPollingInterval)
+    console.log(`AV scan passed. Moving ${path} to clean storage.`)
 
-    console.log(`AV scan passed. Moving ${id} to clean storage.`)
-    await moveToCleanStorage(id, file, contentType, metadata)
+    await cleanRepo.addObject(file, contentType, metadata, path)
   } catch (err) {
     if (err.cause === MALICIOUS_FILE) {
-      console.log(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)
-      await moveToQuarantine(id, file, contentType, metadata)
+      console.warn(`Uploaded file ${path} has been identified as malicious. Moving to quarantine.`)
+      await maliciousRepo.quarantineObject(file, contentType, metadata, path)
+
+      return [null, err]
     }
 
-    return [null, err]
+    throw err
   } finally {
-    console.log(`Deleting file ${id} from DMZ`)
+    console.log(`Deleting file ${path} from DMZ`)
+    await dmzRepo.deleteObject(path)
   }
 
-  return [id, null]
+  return [path, null]
 }
 
 export {

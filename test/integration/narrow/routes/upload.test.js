@@ -8,6 +8,7 @@ import FormData from 'form-data'
 import { randomUUID } from 'crypto'
 
 import { pdf, png } from '../../../mocks/files'
+import { getBlob } from '../../../helper/blob.js'
 
 const { containers: dmzContainers } = dmzStorage
 const { containers: cleanContainers } = cleanStorage
@@ -36,6 +37,7 @@ jest.unstable_mockModule('../../../../app/repos/dmz', () => ({
 }))
 
 const consoleLogSpy = jest.spyOn(console, 'log')
+const consoleWarnSpy = jest.spyOn(console, 'warn')
 const consoleErrorSpy = jest.spyOn(console, 'error')
 
 const { createServer } = await import('../../../../app/server')
@@ -94,20 +96,19 @@ describe('upload endpoint', () => {
         }
       })
 
-      const cleanClient = cleanContainers.objects.getBlockBlobClient(response.result.id)
+      await expect(getBlob(dmzContainers.objects, response.result.id)).rejects.toThrow('The specified blob does not exist.')
 
-      const properties = await cleanClient.getProperties()
-      const blob = await cleanClient.downloadToBuffer()
+      const cleanBlob = await getBlob(cleanContainers.objects, response.result.id)
 
-      expect(properties.contentType).toBe('application/pdf')
-      expect(properties.metadata).toEqual({
+      expect(cleanBlob.properties.contentType).toBe('application/pdf')
+      expect(cleanBlob.properties.metadata).toEqual({
         filename: 'agreement.pdf',
         sbi: '123456789',
         source_system: 'test',
         document_type: 'agreement'
       })
 
-      expect(blob).toEqual(pdf)
+      expect(cleanBlob.buffer).toEqual(pdf)
 
       expect(consoleLogSpy).toHaveBeenCalledWith(`AV scan passed. Moving ${response.result.id} to clean storage.`)
     })
@@ -181,22 +182,21 @@ describe('upload endpoint', () => {
 
       const id = `${generatedIds[0]}/${generatedIds[1]}`
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)
+      expect(consoleWarnSpy).toHaveBeenCalledWith(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)
 
-      const malClient = malContainers.objects.getBlockBlobClient(id)
+      await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
 
-      const properties = await malClient.getProperties()
-      const blob = await malClient.downloadToBuffer()
+      const malBlob = await getBlob(malContainers.objects, id)
 
-      expect(properties.contentType).toBe('application/pdf')
-      expect(properties.metadata).toEqual({
+      expect(malBlob.properties.contentType).toBe('application/pdf')
+      expect(malBlob.properties.metadata).toEqual({
         filename: 'agreement.pdf',
         sbi: '123456789',
         source_system: 'test',
         document_type: 'agreement'
       })
 
-      expect(blob).toEqual(pdf)
+      expect(malBlob.buffer).toEqual(pdf)
 
       cryptoSpy.mockRestore()
     })
@@ -235,6 +235,10 @@ describe('upload endpoint', () => {
       })
 
       expect(response.statusCode).toBe(500)
+
+      const id = `${generatedIds[0]}/${generatedIds[1]}`
+
+      await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
 
       expect(response.result).toEqual({
         error: 'Internal Server Error',
@@ -279,6 +283,10 @@ describe('upload endpoint', () => {
       })
 
       expect(response.statusCode).toBe(500)
+
+      const id = `${generatedIds[0]}/${generatedIds[1]}`
+
+      await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
 
       expect(response.result).toEqual({
         error: 'Internal Server Error',
@@ -373,12 +381,15 @@ describe('upload endpoint', () => {
 
   afterEach(async () => {
     await dmzContainers.objects.deleteIfExists()
+    await cleanContainers.objects.deleteIfExists()
+    await malContainers.objects.deleteIfExists()
 
     await server.stop()
   })
 
   afterAll(() => {
     consoleLogSpy.mockRestore()
+    consoleWarnSpy.mockRestore()
     consoleErrorSpy.mockRestore()
 
     jest.restoreAllMocks()

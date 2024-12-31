@@ -1,15 +1,12 @@
 import { snakeCase } from 'change-case/keys'
 
+import { validateBlobPath } from '../utils/storage.js'
 import { containers } from '../storage/blob/clean.js'
 
 const { objects } = containers
 
 const addObject = async (file, contentType, metadata, path) => {
-  const components = path?.split('/')
-
-  if (!path || components.length !== 2) {
-    throw new Error('Path is required. Path must be in the format of folder/filename')
-  }
+  validateBlobPath(path)
 
   const blob = objects.getBlockBlobClient(path)
 
@@ -19,20 +16,34 @@ const addObject = async (file, contentType, metadata, path) => {
     parsedMetadata[key] = parsedMetadata[key].toString()
   }
 
-  await blob.uploadData(file, {
-    blobHTTPHeaders: {
-      blobContentType: contentType
-    },
-    metadata: parsedMetadata
-  })
+  try {
+    await blob.uploadData(file, {
+      blobHTTPHeaders: {
+        blobContentType: contentType
+      },
+      metadata: parsedMetadata
+    })
+  } catch (err) {
+    console.error('An error occurred while adding to clean storage:', err)
+
+    throw err
+  }
 
   return path
 }
 
 const deleteObject = async (path) => {
-  const blob = objects.getBlockBlobClient(path)
+  validateBlobPath(path)
 
-  await blob.deleteIfExists()
+  try {
+    const blob = objects.getBlockBlobClient(path)
+
+    await blob.deleteIfExists()
+  } catch (err) {
+    console.error('An error occurred while deleting from clean storage:', err)
+
+    throw err
+  }
 }
 
 export {

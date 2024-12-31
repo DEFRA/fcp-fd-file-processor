@@ -42,10 +42,7 @@ describe('file upload service', () => {
       documentType: 'agreement'
     }
 
-    dmzRepo.getAvScanStatus.mockResolvedValue({
-      status: 'CLEAN_FILE',
-      time: '2024-12-23 17:00:23Z'
-    })
+    dmzRepo.getAvScanStatus.mockResolvedValue('CLEAN_FILE')
 
     await handleFileUpload(data, 'application/pdf', metadata)
 
@@ -83,10 +80,7 @@ describe('file upload service', () => {
 
     dmzRepo.addObject.mockResolvedValue(id)
 
-    dmzRepo.getAvScanStatus.mockResolvedValue({
-      status: 'CLEAN_FILE',
-      time: '2024-12-23 17:00:23Z'
-    })
+    dmzRepo.getAvScanStatus.mockResolvedValue('CLEAN_FILE')
 
     await handleFileUpload(data, 'application/pdf', metadata)
 
@@ -105,10 +99,7 @@ describe('file upload service', () => {
 
     const id = '0230964f-ee67-4c70-920e-84847200140d/af173eb1-e1dc-44dc-ab51-ff8a817371b2'
 
-    dmzRepo.getAvScanStatus.mockResolvedValue({
-      status: 'CLEAN_FILE',
-      time: '2024-12-23 17:00:23Z'
-    })
+    dmzRepo.getAvScanStatus.mockResolvedValue('CLEAN_FILE')
 
     dmzRepo.addObject.mockResolvedValue(id)
 
@@ -133,10 +124,9 @@ describe('file upload service', () => {
 
     dmzRepo.addObject.mockResolvedValue(id)
 
-    dmzRepo.getAvScanStatus.mockResolvedValue({
-      status: 'MALICIOUS_FILE',
-      time: '2024-12-23 17:00:23Z'
-    })
+    const mockError = new Error('Uploaded file has been identified as malicious', { cause: 'MALICIOUS_FILE' })
+
+    dmzRepo.getAvScanStatus.mockRejectedValue(mockError)
 
     await handleFileUpload(data, 'application/pdf', metadata)
 
@@ -155,10 +145,9 @@ describe('file upload service', () => {
 
     const id = '0230964f-ee67-4c70-920e-84847200140d/af173eb1-e1dc-44dc-ab51-ff8a817371b2'
 
-    dmzRepo.getAvScanStatus.mockResolvedValue({
-      status: 'MALICIOUS_FILE',
-      time: '2024-12-23 17:00:23Z'
-    })
+    const mockMaliciousError = new Error('Uploaded file has been identified as malicious', { cause: 'MALICIOUS_FILE' })
+
+    dmzRepo.getAvScanStatus.mockRejectedValue(mockMaliciousError)
 
     dmzRepo.addObject.mockResolvedValue(id)
 
@@ -167,31 +156,5 @@ describe('file upload service', () => {
     maliciousRepo.quarantineObject.mockRejectedValue(mockError)
 
     await expect(handleFileUpload(data, 'application/pdf', metadata)).rejects.toThrow('Failed to move file to quarantine')
-  })
-
-  test('should log error if getAvScanStatus fails', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error')
-
-    const data = pdf
-
-    const metadata = {
-      filename: 'test.pdf',
-      sbi: 123456789,
-      sourceSystem: 'test',
-      documentType: 'agreement'
-    }
-
-    const mockError = new Error('Failed to get AV scan status')
-
-    const id = '0230964f-ee67-4c70-920e-84847200140d/af173eb1-e1dc-44dc-ab51-ff8a817371b2'
-
-    dmzRepo.addObject.mockResolvedValue(id)
-    dmzRepo.getAvScanStatus.mockRejectedValue(mockError)
-
-    await expect(handleFileUpload(data, 'application/pdf', metadata))
-      .rejects
-      .toThrow('AV scan for 0230964f-ee67-4c70-920e-84847200140d/af173eb1-e1dc-44dc-ab51-ff8a817371b2 timed out after 10 attempts')
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith(`An error occurred while polling AV scan status for ${id}:`, mockError)
   })
 })

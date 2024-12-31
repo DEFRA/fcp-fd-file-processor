@@ -46,17 +46,22 @@ const waitForAvScan = async (id, interval) => {
 }
 
 const handleFileUpload = async (file, contentType, metadata) => {
-  const path = await dmzRepo.addObject(file, contentType, metadata)
+  const attributes = {
+    contentType,
+    metadata
+  }
+
+  const path = await dmzRepo.addObject(file, attributes)
 
   try {
     await waitForAvScan(path, avPollingInterval)
     console.log(`AV scan passed. Moving ${path} to clean storage.`)
 
-    await cleanRepo.addObject(file, contentType, metadata, path)
+    await cleanRepo.addObject(file, path, attributes)
   } catch (err) {
     if (err.cause === MALICIOUS_FILE) {
       console.warn(`Uploaded file ${path} has been identified as malicious. Moving to quarantine.`)
-      await maliciousRepo.quarantineObject(file, contentType, metadata, path)
+      await maliciousRepo.quarantineObject(file, path, attributes)
 
       return [null, err]
     }

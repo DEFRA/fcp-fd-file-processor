@@ -25,33 +25,39 @@ describe('clean repository', () => {
 
   test('add object should throw an error when path is invalid', async () => {
     const file = 'file'
-    const contentType = 'content-type'
-    const metadata = { metadata: 'metadata' }
     const path = 'invalid-path'
+    const attributes = {
+      contentType: 'content-type',
+      metadata: { metadata: 'metadata' }
+    }
 
-    await expect(cleanRepo.addObject(file, contentType, metadata, path)).rejects.toThrow('Path must be in the format of folder/filename')
+    await expect(cleanRepo.addObject(file, path, attributes)).rejects.toThrow('Path must be in the format of folder/filename')
   })
 
   test('add object should throw an error if path is not provided', async () => {
     const file = 'file'
-    const contentType = 'content-type'
-    const metadata = { metadata: 'metadata' }
+    const attributes = {
+      contentType: 'content-type',
+      metadata: { metadata: 'metadata' }
+    }
 
-    await expect(cleanRepo.addObject(file, contentType, metadata)).rejects.toThrow('Path is required.')
+    await expect(cleanRepo.addObject(file, null, attributes)).rejects.toThrow('Path is required')
   })
 
   test('add object should throw an error if upload fails', async () => {
     const file = 'file'
-    const contentType = 'content-type'
-    const metadata = { metadata: 'metadata' }
     const path = 'folder/filename'
+    const attributes = {
+      contentType: 'content-type',
+      metadata: { metadata: 'metadata' }
+    }
 
     const mockError = new Error('Storage error')
 
     mockBlobClient.uploadData.mockRejectedValue(mockError)
 
-    await expect(cleanRepo.addObject(file, contentType, metadata, path)).rejects.toThrow('Storage error')
-    expect(consoleErrorSpy).toHaveBeenCalledWith('An error occurred while adding to clean storage:', mockError)
+    await expect(cleanRepo.addObject(file, path, attributes)).rejects.toThrow('Storage error')
+    expect(consoleErrorSpy).toHaveBeenCalledWith('An error occurred while uploading blob:', mockError)
   })
 
   test('delete object should throw an error if upload fails', async () => {
@@ -62,7 +68,7 @@ describe('clean repository', () => {
     mockBlobClient.deleteIfExists.mockRejectedValue(mockError)
 
     await expect(cleanRepo.deleteObject(path)).rejects.toThrow('Storage error')
-    expect(consoleErrorSpy).toHaveBeenCalledWith('An error occurred while deleting from clean storage:', mockError)
+    expect(consoleErrorSpy).toHaveBeenCalledWith('An error occurred while deleting blob:', mockError)
   })
 
   test('delete object should throw an error if path is not provided', async () => {

@@ -11,7 +11,8 @@ jest.unstable_mockModule('../../../app/repos/dmz', () => ({
 }))
 
 jest.unstable_mockModule('../../../app/repos/clean', () => ({
-  addObject: jest.fn()
+  addObject: jest.fn(),
+  deleteObject: jest.fn()
 }))
 
 jest.unstable_mockModule('../../../app/repos/malicious', () => ({
@@ -48,7 +49,7 @@ describe('file upload service', () => {
 
     await handleFileUpload(data, 'application/pdf', metadata)
 
-    expect(dmzRepo.addObject).toHaveBeenCalledWith(data, 'application/pdf', metadata)
+    expect(dmzRepo.addObject).toHaveBeenCalledWith(data, { contentType: 'application/pdf', metadata })
   })
 
   test('should throw an error if the upload to DMZ fails', async () => {
@@ -65,7 +66,7 @@ describe('file upload service', () => {
 
     dmzRepo.addObject.mockRejectedValue(mockError)
 
-    await expect(handleFileUpload(data, 'application/pdf', metadata)).rejects.toThrow(mockError.message)
+    await expect(handleFileUpload(data, 'application/pdf', metadata)).rejects.toThrow('Failed to upload file')
   })
 
   test('should move a file to clean storage if it is identified as clean', async () => {
@@ -89,7 +90,7 @@ describe('file upload service', () => {
 
     await handleFileUpload(data, 'application/pdf', metadata)
 
-    expect(cleanRepo.addObject).toHaveBeenCalledWith(data, 'application/pdf', metadata, id)
+    expect(cleanRepo.addObject).toHaveBeenCalledWith(data, id, { contentType: 'application/pdf', metadata })
   })
 
   test('should return an error if moving the file to clean storage fails', async () => {
@@ -115,7 +116,7 @@ describe('file upload service', () => {
 
     cleanRepo.addObject.mockRejectedValue(mockError)
 
-    await expect(handleFileUpload(data, 'application/pdf', metadata)).rejects.toThrow(mockError.message)
+    await expect(handleFileUpload(data, 'application/pdf', metadata)).rejects.toThrow('Failed to move file to clean storage')
   })
 
   test('should move a file to quarantine if it is identified as malicious', async () => {
@@ -139,7 +140,7 @@ describe('file upload service', () => {
 
     await handleFileUpload(data, 'application/pdf', metadata)
 
-    expect(maliciousRepo.quarantineObject).toHaveBeenCalledWith(data, 'application/pdf', metadata, id)
+    expect(maliciousRepo.quarantineObject).toHaveBeenCalledWith(data, id, { contentType: 'application/pdf', metadata })
   })
 
   test('should throw an error if moving the file to quarantine fails', async () => {
@@ -165,7 +166,7 @@ describe('file upload service', () => {
 
     maliciousRepo.quarantineObject.mockRejectedValue(mockError)
 
-    await expect(handleFileUpload(data, 'application/pdf', metadata)).rejects.toThrow(mockError.message)
+    await expect(handleFileUpload(data, 'application/pdf', metadata)).rejects.toThrow('Failed to move file to quarantine')
   })
 
   test('should log error if getAvScanStatus fails', async () => {

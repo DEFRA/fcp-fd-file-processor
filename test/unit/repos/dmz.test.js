@@ -25,15 +25,17 @@ describe('dmz repository', () => {
 
   test('add object should throw an error if upload fails', async () => {
     const file = 'file'
-    const contentType = 'content-type'
-    const metadata = { metadata: 'metadata' }
+    const attributes = {
+      contentType: 'content-type',
+      metadata: { metadata: 'metadata' }
+    }
 
     const mockError = new Error('Storage error')
 
     mockBlobClient.uploadData.mockRejectedValue(mockError)
 
-    await expect(dmzRepo.addObject(file, contentType, metadata)).rejects.toThrow('Storage error')
-    expect(consoleErrorSpy).toHaveBeenCalledWith('An error occurred while adding to DMZ:', mockError)
+    await expect(dmzRepo.addObject(file, attributes)).rejects.toThrow('Storage error')
+    expect(consoleErrorSpy).toHaveBeenCalledWith('An error occurred while uploading blob:', mockError)
   })
 
   test('delete object should throw an error if upload fails', async () => {
@@ -44,7 +46,7 @@ describe('dmz repository', () => {
     mockBlobClient.deleteIfExists.mockRejectedValue(mockError)
 
     await expect(dmzRepo.deleteObject(path)).rejects.toThrow('Storage error')
-    expect(consoleErrorSpy).toHaveBeenCalledWith('An error occurred while deleting from DMZ:', mockError)
+    expect(consoleErrorSpy).toHaveBeenCalledWith('An error occurred while deleting blob:', mockError)
   })
 
   test('get av scan status should throw an error if get tags fails', async () => {

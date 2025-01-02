@@ -22,20 +22,7 @@ const getStorageCredential = (accountName, accessKey) => {
   return new DefaultAzureCredential({ managedIdentityClientId: storage.get('managedIdentityClientId') })
 }
 
-const validateBlobPath = (path) => {
-  if (!path) {
-    throw new Error('Path is required.')
-  }
-
-  const components = path.split('/')
-
-  if (components.length !== 2) {
-    throw new Error('Path must be in the format of folder/filename')
-  }
-}
-
 export {
   getStorageEndpoint,
-  getStorageCredential,
-  validateBlobPath
+  getStorageCredential
 }

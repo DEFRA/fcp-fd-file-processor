@@ -1,4 +1,3 @@
-import { validateBlobPath } from '../utils/storage.js'
 import { containers } from '../storage/blob/dmz.js'
 import { AV_SCAN_TIMEOUT, CLEAN_FILE, MALICIOUS_FILE } from '../constants/av-results.js'
 import { uploadBlob, getBlobTags, deleteBlob } from '../storage/blob/common.js'
@@ -20,7 +19,19 @@ const parseAvStatus = (status) => {
   }
 }
 
-const waitForAvScan = async (path) => {
+const addObject = async (file, attributes) => {
+  const path = crypto.randomUUID()
+
+  await uploadBlob(objects, file, path, attributes)
+
+  return path
+}
+
+const deleteObject = async (path) => {
+  await deleteBlob(objects, path)
+}
+
+const getAvScanStatus = async (path) => {
   let avResult
   let attempts = 0
 
@@ -54,26 +65,6 @@ const waitForAvScan = async (path) => {
     default:
       throw new Error('An error occurred while scanning the uploaded file', { cause: avResult })
   }
-}
-
-const addObject = async (file, attributes) => {
-  const path = `${crypto.randomUUID()}/${crypto.randomUUID()}`
-
-  await uploadBlob(objects, file, path, attributes)
-
-  return path
-}
-
-const deleteObject = async (path) => {
-  validateBlobPath(path)
-
-  await deleteBlob(objects, path)
-}
-
-const getAvScanStatus = async (path) => {
-  validateBlobPath(path)
-
-  return waitForAvScan(path)
 }
 
 export {

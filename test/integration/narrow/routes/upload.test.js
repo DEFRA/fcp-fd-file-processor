@@ -141,241 +141,245 @@ describe('upload endpoint', () => {
       ]))
     })
 
-    test('should return 400 if the file is malicious', async () => {
-      const cryptoSpy = jest.spyOn(crypto, 'randomUUID')
+    describe('AV scan results', () => {
+      test('should return 400 if the file is malicious', async () => {
+        const cryptoSpy = jest.spyOn(crypto, 'randomUUID')
 
-      const generatedIds = []
+        const generatedIds = []
 
-      cryptoSpy.mockImplementation(() => {
-        const uuid = randomUUID()
+        cryptoSpy.mockImplementation(() => {
+          const uuid = randomUUID()
 
-        generatedIds.push(uuid)
+          generatedIds.push(uuid)
 
-        return uuid
+          return uuid
+        })
+
+        mockAvResult.result = 'Malicious'
+        mockAvResult.time = '2024-12-23 17:00:23Z'
+
+        const formData = new FormData()
+
+        formData.append('file', pdf, 'agreement.pdf')
+        formData.append('sbi', '123456789')
+        formData.append('sourceSystem', 'test')
+        formData.append('documentType', 'agreement')
+
+        const response = await server.inject({
+          method: 'POST',
+          url: '/upload',
+          payload: formData.getBuffer(),
+          headers: {
+            ...formData.getHeaders(),
+            'Content-Length': formData.getBuffer().length
+          }
+        })
+
+        expect(response.statusCode).toBe(400)
+
+        expect(response.result).toEqual({
+          errors: ['Uploaded file has been identified as malicious']
+        })
+
+        const id = generatedIds[0]
+
+        expect(consoleWarnSpy).toHaveBeenCalledWith(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)
+
+        await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
+
+        const malBlob = await getBlob(malContainers.objects, id)
+
+        expect(malBlob.properties.contentType).toBe('application/pdf')
+        expect(malBlob.properties.metadata).toEqual({
+          filename: 'agreement.pdf',
+          sbi: '123456789',
+          source_system: 'test',
+          document_type: 'agreement'
+        })
+
+        expect(malBlob.buffer).toEqual(pdf)
+
+        cryptoSpy.mockRestore()
       })
 
-      mockAvResult.result = 'Malicious'
-      mockAvResult.time = '2024-12-23 17:00:23Z'
+      test('should return 500 if the AV scan times out', async () => {
+        const cryptoSpy = jest.spyOn(crypto, 'randomUUID')
 
-      const formData = new FormData()
+        mockAvResult.result = ''
+        mockAvResult.time = ''
 
-      formData.append('file', pdf, 'agreement.pdf')
-      formData.append('sbi', '123456789')
-      formData.append('sourceSystem', 'test')
-      formData.append('documentType', 'agreement')
+        const generatedIds = []
 
-      const response = await server.inject({
-        method: 'POST',
-        url: '/upload',
-        payload: formData.getBuffer(),
-        headers: {
-          ...formData.getHeaders(),
-          'Content-Length': formData.getBuffer().length
-        }
+        cryptoSpy.mockImplementation(() => {
+          const uuid = randomUUID()
+
+          generatedIds.push(uuid)
+
+          return uuid
+        })
+
+        const formData = new FormData()
+
+        formData.append('file', pdf, 'agreement.pdf')
+        formData.append('sbi', '123456789')
+        formData.append('sourceSystem', 'test')
+        formData.append('documentType', 'agreement')
+
+        const response = await server.inject({
+          method: 'POST',
+          url: '/upload',
+          payload: formData.getBuffer(),
+          headers: {
+            ...formData.getHeaders(),
+            'Content-Length': formData.getBuffer().length
+          }
+        })
+
+        expect(response.statusCode).toBe(500)
+
+        const id = `${generatedIds[0]}/${generatedIds[1]}`
+
+        await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
+
+        expect(response.result).toEqual({
+          error: 'Internal Server Error',
+          message: 'An internal server error occurred',
+          statusCode: 500
+        })
+
+        cryptoSpy.mockRestore()
       })
 
-      expect(response.statusCode).toBe(400)
+      test('should return 500 if an error occurs while uploading the file', async () => {
+        const cryptoSpy = jest.spyOn(crypto, 'randomUUID')
 
-      expect(response.result).toEqual({
-        errors: ['Uploaded file has been identified as malicious']
+        const generatedIds = []
+
+        cryptoSpy.mockImplementation(() => {
+          const uuid = randomUUID()
+
+          generatedIds.push(uuid)
+
+          return uuid
+        })
+
+        mockAvResult.result = 'SAM259201'
+        mockAvResult.time = '2024-12-23 17:00:23Z'
+
+        const formData = new FormData()
+
+        formData.append('file', pdf, 'agreement.pdf')
+        formData.append('sbi', '123456789')
+        formData.append('sourceSystem', 'test')
+        formData.append('documentType', 'agreement')
+
+        const response = await server.inject({
+          method: 'POST',
+          url: '/upload',
+          payload: formData.getBuffer(),
+          headers: {
+            ...formData.getHeaders(),
+            'Content-Length': formData.getBuffer().length
+          }
+        })
+
+        expect(response.statusCode).toBe(500)
+
+        const id = `${generatedIds[0]}/${generatedIds[1]}`
+
+        await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
+
+        expect(response.result).toEqual({
+          error: 'Internal Server Error',
+          message: 'An internal server error occurred',
+          statusCode: 500
+        })
+
+        cryptoSpy.mockRestore()
       })
-
-      const id = `${generatedIds[0]}/${generatedIds[1]}`
-
-      expect(consoleWarnSpy).toHaveBeenCalledWith(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)
-
-      await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
-
-      const malBlob = await getBlob(malContainers.objects, id)
-
-      expect(malBlob.properties.contentType).toBe('application/pdf')
-      expect(malBlob.properties.metadata).toEqual({
-        filename: 'agreement.pdf',
-        sbi: '123456789',
-        source_system: 'test',
-        document_type: 'agreement'
-      })
-
-      expect(malBlob.buffer).toEqual(pdf)
-
-      cryptoSpy.mockRestore()
     })
 
-    test('should return 500 if the AV scan times out', async () => {
-      const cryptoSpy = jest.spyOn(crypto, 'randomUUID')
+    describe('file type validation', () => {
+      test('should return 415 if the content type is not supported', async () => {
+        const formData = new FormData()
 
-      mockAvResult.result = ''
-      mockAvResult.time = ''
+        formData.append('file', png, 'agreement.png')
+        formData.append('sbi', '123456789')
+        formData.append('sourceSystem', 'test')
+        formData.append('documentType', 'agreement')
 
-      const generatedIds = []
+        const response = await server.inject({
+          method: 'POST',
+          url: '/upload',
+          payload: formData.getBuffer(),
+          headers: {
+            ...formData.getHeaders(),
+            'Content-Length': formData.getLengthSync()
+          }
+        })
 
-      cryptoSpy.mockImplementation(() => {
-        const uuid = randomUUID()
+        expect(response.statusCode).toBe(415)
 
-        generatedIds.push(uuid)
+        const { errors } = response.result
 
-        return uuid
+        expect(errors).toEqual([
+          'Unsupported content type. Supported types are: [application/pdf]'
+        ])
       })
 
-      const formData = new FormData()
+      test('should return 400 if the expected file type does not match the detected file type', async () => {
+        const formData = new FormData()
 
-      formData.append('file', pdf, 'agreement.pdf')
-      formData.append('sbi', '123456789')
-      formData.append('sourceSystem', 'test')
-      formData.append('documentType', 'agreement')
+        formData.append('file', pdf, { filename: 'agreement.png', contentType: 'application/pdf' })
+        formData.append('sbi', '123456789')
+        formData.append('sourceSystem', 'test')
+        formData.append('documentType', 'agreement')
 
-      const response = await server.inject({
-        method: 'POST',
-        url: '/upload',
-        payload: formData.getBuffer(),
-        headers: {
-          ...formData.getHeaders(),
-          'Content-Length': formData.getBuffer().length
-        }
+        const response = await server.inject({
+          method: 'POST',
+          url: '/upload',
+          payload: formData.getBuffer(),
+          headers: {
+            ...formData.getHeaders(),
+            'Content-Length': formData.getLengthSync()
+          }
+        })
+
+        expect(response.statusCode).toBe(400)
+
+        const { errors } = response.result
+
+        expect(errors).toEqual([
+          'Detected extension (.pdf) does not match the provided extension (.png)'
+        ])
       })
 
-      expect(response.statusCode).toBe(500)
+      test('should return 400 if the expected content type does not match the detected content type', async () => {
+        const formData = new FormData()
 
-      const id = `${generatedIds[0]}/${generatedIds[1]}`
+        formData.append('file', png, { filename: 'agreement.png', contentType: 'application/pdf' })
+        formData.append('sbi', '123456789')
+        formData.append('sourceSystem', 'test')
+        formData.append('documentType', 'agreement')
 
-      await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
+        const response = await server.inject({
+          method: 'POST',
+          url: '/upload',
+          payload: formData.getBuffer(),
+          headers: {
+            ...formData.getHeaders(),
+            'Content-Length': formData.getLengthSync()
+          }
+        })
 
-      expect(response.result).toEqual({
-        error: 'Internal Server Error',
-        message: 'An internal server error occurred',
-        statusCode: 500
+        expect(response.statusCode).toBe(400)
+
+        const { errors } = response.result
+
+        expect(errors).toEqual([
+          'Detected type (image/png) does not match the provided type (application/pdf)'
+        ])
       })
-
-      cryptoSpy.mockRestore()
-    })
-
-    test('should return 500 if an error occurs while uploading the file', async () => {
-      const cryptoSpy = jest.spyOn(crypto, 'randomUUID')
-
-      const generatedIds = []
-
-      cryptoSpy.mockImplementation(() => {
-        const uuid = randomUUID()
-
-        generatedIds.push(uuid)
-
-        return uuid
-      })
-
-      mockAvResult.result = 'SAM259201'
-      mockAvResult.time = '2024-12-23 17:00:23Z'
-
-      const formData = new FormData()
-
-      formData.append('file', pdf, 'agreement.pdf')
-      formData.append('sbi', '123456789')
-      formData.append('sourceSystem', 'test')
-      formData.append('documentType', 'agreement')
-
-      const response = await server.inject({
-        method: 'POST',
-        url: '/upload',
-        payload: formData.getBuffer(),
-        headers: {
-          ...formData.getHeaders(),
-          'Content-Length': formData.getBuffer().length
-        }
-      })
-
-      expect(response.statusCode).toBe(500)
-
-      const id = `${generatedIds[0]}/${generatedIds[1]}`
-
-      await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
-
-      expect(response.result).toEqual({
-        error: 'Internal Server Error',
-        message: 'An internal server error occurred',
-        statusCode: 500
-      })
-
-      cryptoSpy.mockRestore()
-    })
-
-    test('should return 415 if the content type is not supported', async () => {
-      const formData = new FormData()
-
-      formData.append('file', png, 'agreement.png')
-      formData.append('sbi', '123456789')
-      formData.append('sourceSystem', 'test')
-      formData.append('documentType', 'agreement')
-
-      const response = await server.inject({
-        method: 'POST',
-        url: '/upload',
-        payload: formData.getBuffer(),
-        headers: {
-          ...formData.getHeaders(),
-          'Content-Length': formData.getLengthSync()
-        }
-      })
-
-      expect(response.statusCode).toBe(415)
-
-      const { errors } = response.result
-
-      expect(errors).toEqual([
-        'Unsupported content type. Supported types are: [application/pdf]'
-      ])
-    })
-
-    test('should return 400 if the expected file type does not match the detected file type', async () => {
-      const formData = new FormData()
-
-      formData.append('file', pdf, { filename: 'agreement.png', contentType: 'application/pdf' })
-      formData.append('sbi', '123456789')
-      formData.append('sourceSystem', 'test')
-      formData.append('documentType', 'agreement')
-
-      const response = await server.inject({
-        method: 'POST',
-        url: '/upload',
-        payload: formData.getBuffer(),
-        headers: {
-          ...formData.getHeaders(),
-          'Content-Length': formData.getLengthSync()
-        }
-      })
-
-      expect(response.statusCode).toBe(400)
-
-      const { errors } = response.result
-
-      expect(errors).toEqual([
-        'Detected extension (.pdf) does not match the provided extension (.png)'
-      ])
-    })
-
-    test('should return 400 if the expected content type does not match the detected content type', async () => {
-      const formData = new FormData()
-
-      formData.append('file', png, { filename: 'agreement.png', contentType: 'application/pdf' })
-      formData.append('sbi', '123456789')
-      formData.append('sourceSystem', 'test')
-      formData.append('documentType', 'agreement')
-
-      const response = await server.inject({
-        method: 'POST',
-        url: '/upload',
-        payload: formData.getBuffer(),
-        headers: {
-          ...formData.getHeaders(),
-          'Content-Length': formData.getLengthSync()
-        }
-      })
-
-      expect(response.statusCode).toBe(400)
-
-      const { errors } = response.result
-
-      expect(errors).toEqual([
-        'Detected type (image/png) does not match the provided type (application/pdf)'
-      ])
     })
   })
 

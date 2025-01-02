@@ -31,7 +31,7 @@ describe('file upload service', () => {
   })
 
   test('should upload a file to the DMZ', async () => {
-    dmzRepo.addObject.mockResolvedValue('0230964f-ee67-4c70-920e-84847200140d/af173eb1-e1dc-44dc-ab51-ff8a817371b2')
+    dmzRepo.addObject.mockResolvedValue('af173eb1-e1dc-44dc-ab51-ff8a817371b2')
 
     const data = pdf
 
@@ -76,7 +76,7 @@ describe('file upload service', () => {
       documentType: 'agreement'
     }
 
-    const id = '0230964f-ee67-4c70-920e-84847200140d/af173eb1-e1dc-44dc-ab51-ff8a817371b2'
+    const id = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
 
     dmzRepo.addObject.mockResolvedValue(id)
 
@@ -97,7 +97,7 @@ describe('file upload service', () => {
       documentType: 'agreement'
     }
 
-    const id = '0230964f-ee67-4c70-920e-84847200140d/af173eb1-e1dc-44dc-ab51-ff8a817371b2'
+    const id = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
 
     dmzRepo.getAvScanStatus.mockResolvedValue('CLEAN_FILE')
 
@@ -120,7 +120,7 @@ describe('file upload service', () => {
       documentType: 'agreement'
     }
 
-    const id = '0230964f-ee67-4c70-920e-84847200140d/af173eb1-e1dc-44dc-ab51-ff8a817371b2'
+    const id = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
 
     dmzRepo.addObject.mockResolvedValue(id)
 
@@ -143,7 +143,7 @@ describe('file upload service', () => {
       documentType: 'agreement'
     }
 
-    const id = '0230964f-ee67-4c70-920e-84847200140d/af173eb1-e1dc-44dc-ab51-ff8a817371b2'
+    const id = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
 
     const mockMaliciousError = new Error('Uploaded file has been identified as malicious', { cause: 'MALICIOUS_FILE' })
 

@@ -56,7 +56,33 @@ paths:
                   path: 
                     type: string
                     description: SFD identifier for the uploaded file.
-                    example: "f2733300-9a0a-40d7-9922-32c74e518eb3/3a826edd-0ce0-488e-ab2b-d28cd37a9be6"
+                    example: "3a826edd-0ce0-488e-ab2b-d28cd37a9be6"
+                  metadata:
+                    type: object
+                    properties:
+                      sbi:
+                        $ref: '#/components/schemas/sbi'
+                      crn:
+                        $ref: '#/components/schemas/crn'
+                      sourceSystem:
+                        $ref: '#/components/schemas/sourceSystem'
+                      documentType:
+                        $ref: '#/components/schemas/documentType'
+                    required:
+                      - sbi
+                      - crn
+                      - sourceSystem
+                      - documentType
+                    example:
+                      sbi: 123456789
+                      crn: 1234567890
+                      sourceSystem: "ahwp"
+                      documentType: "agreement"
+                  contentType:
+                    type: string
+                    description: The content type of the uploaded file.
+                    example: "application/pdf"
+
         '400':
           description: File upload request is invalid.
           content:

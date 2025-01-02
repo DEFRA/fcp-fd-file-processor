@@ -1,20 +1,11 @@
-import { snakeCase } from 'change-case/keys'
-
 const uploadBlob = async (client, file, path, attributes) => {
   try {
     const blob = client.getBlockBlobClient(path)
 
-    const parsedMetadata = snakeCase(attributes.metadata)
-
-    for (const key of Object.keys(parsedMetadata)) {
-      parsedMetadata[key] = parsedMetadata[key].toString()
-    }
-
     await blob.uploadData(file, {
       blobHTTPHeaders: {
         blobContentType: attributes.contentType
-      },
-      metadata: parsedMetadata
+      }
     })
   } catch (err) {
     console.error('An error occurred while uploading blob:', err)

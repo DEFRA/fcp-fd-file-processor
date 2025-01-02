@@ -86,7 +86,7 @@ describe('upload endpoint', () => {
       expect(response.statusCode).toBe(201)
 
       expect(response.result).toEqual({
-        id: expect.any(String),
+        path: expect.any(String),
         contentType: 'application/pdf',
         metadata: {
           filename: 'agreement.pdf',
@@ -96,21 +96,15 @@ describe('upload endpoint', () => {
         }
       })
 
-      await expect(getBlob(dmzContainers.objects, response.result.id)).rejects.toThrow('The specified blob does not exist.')
+      await expect(getBlob(dmzContainers.objects, response.result.path)).rejects.toThrow('The specified blob does not exist.')
 
-      const cleanBlob = await getBlob(cleanContainers.objects, response.result.id)
+      const cleanBlob = await getBlob(cleanContainers.objects, response.result.path)
 
       expect(cleanBlob.properties.contentType).toBe('application/pdf')
-      expect(cleanBlob.properties.metadata).toEqual({
-        filename: 'agreement.pdf',
-        sbi: '123456789',
-        source_system: 'test',
-        document_type: 'agreement'
-      })
 
       expect(cleanBlob.buffer).toEqual(pdf)
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(`AV scan passed. Moving ${response.result.id} to clean storage.`)
+      expect(consoleLogSpy).toHaveBeenCalledWith(`AV scan passed. Moving ${response.result.path} to clean storage.`)
     })
 
     test('should return 400 if the request is invalid', async () => {
@@ -190,12 +184,6 @@ describe('upload endpoint', () => {
         const malBlob = await getBlob(malContainers.objects, id)
 
         expect(malBlob.properties.contentType).toBe('application/pdf')
-        expect(malBlob.properties.metadata).toEqual({
-          filename: 'agreement.pdf',
-          sbi: '123456789',
-          source_system: 'test',
-          document_type: 'agreement'
-        })
 
         expect(malBlob.buffer).toEqual(pdf)
 

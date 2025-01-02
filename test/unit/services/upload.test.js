@@ -44,7 +44,7 @@ describe('file upload service', () => {
 
     dmzRepo.getAvScanStatus.mockResolvedValue('CLEAN_FILE')
 
-    await handleFileUpload(data, 'application/pdf', metadata)
+    await handleFileUpload(data, { contentType: 'application/pdf', metadata })
 
     expect(dmzRepo.addObject).toHaveBeenCalledWith(data, { contentType: 'application/pdf', metadata })
   })
@@ -82,7 +82,7 @@ describe('file upload service', () => {
 
     dmzRepo.getAvScanStatus.mockResolvedValue('CLEAN_FILE')
 
-    await handleFileUpload(data, 'application/pdf', metadata)
+    await handleFileUpload(data, { contentType: 'application/pdf', metadata })
 
     expect(cleanRepo.addObject).toHaveBeenCalledWith(data, id, { contentType: 'application/pdf', metadata })
   })
@@ -107,7 +107,7 @@ describe('file upload service', () => {
 
     cleanRepo.addObject.mockRejectedValue(mockError)
 
-    await expect(handleFileUpload(data, 'application/pdf', metadata)).rejects.toThrow('Failed to move file to clean storage')
+    await expect(handleFileUpload(data, { contentType: 'application/pdf', metadata })).rejects.toThrow('Failed to move file to clean storage')
   })
 
   test('should move a file to quarantine if it is identified as malicious', async () => {
@@ -128,7 +128,7 @@ describe('file upload service', () => {
 
     dmzRepo.getAvScanStatus.mockRejectedValue(mockError)
 
-    await handleFileUpload(data, 'application/pdf', metadata)
+    await handleFileUpload(data, { contentType: 'application/pdf', metadata })
 
     expect(maliciousRepo.quarantineObject).toHaveBeenCalledWith(data, id, { contentType: 'application/pdf', metadata })
   })
@@ -155,6 +155,6 @@ describe('file upload service', () => {
 
     maliciousRepo.quarantineObject.mockRejectedValue(mockError)
 
-    await expect(handleFileUpload(data, 'application/pdf', metadata)).rejects.toThrow('Failed to move file to quarantine')
+    await expect(handleFileUpload(data, { contentType: 'application/pdf', metadata })).rejects.toThrow('Failed to move file to quarantine')
   })
 })

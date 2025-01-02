@@ -36,14 +36,17 @@ const upload = {
     const data = payload.file._data
     const contentType = payload.file.hapi.headers['content-type']
 
-    const metadata = {
-      filename: payload.file.hapi.filename,
-      ...payload
+    const attributes = {
+      metadata: {
+        filename: payload.file.hapi.filename,
+        ...payload
+      },
+      contentType
     }
 
-    delete metadata.file
+    delete attributes.metadata.file
 
-    const [id, err] = await handleFileUpload(data, contentType, metadata)
+    const [path, err] = await handleFileUpload(data, attributes)
 
     if (err?.cause === MALICIOUS_FILE) {
       return h.response({
@@ -51,7 +54,11 @@ const upload = {
       }).code(400)
     }
 
-    return h.response({ id, contentType, metadata }).code(201)
+    return h.response({
+      path,
+      contentType,
+      metadata: attributes.metadata
+    }).code(201)
   }
 }
 

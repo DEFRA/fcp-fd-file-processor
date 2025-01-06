@@ -10,6 +10,10 @@ services:
     environment:
       APPINSIGHTS_CLOUDROLE: fcp-fd-file-processor-local
       APPINSIGHTS_CONNECTIONSTRING: ${APPINSIGHTS_CONNECTIONSTRING}
+      MESSAGE_QUEUE_HOST: ${MESSAGE_QUEUE_HOST}
+      MESSAGE_QUEUE_USER: ${MESSAGE_QUEUE_USER}
+      MESSAGE_QUEUE_PASSWORD: ${MESSAGE_QUEUE_PASSWORD}
+      DATA_TOPIC_ADDRESS: fcp-fd-data${MESSAGE_QUEUE_SUFFIX}
 
   fcp-fd-file-processor-azurite:
     image: mcr.microsoft.com/azure-storage/azurite:3.33.0

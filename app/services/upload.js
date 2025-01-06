@@ -40,6 +40,8 @@ const waitForAvScan = async (id, interval) => {
 const uploadFile = async (file, contentType, metadata) => {
   try {
     const id = await addObject(file, contentType, metadata)
+    metadata.blobReference = id
+    metadata.newFileName = id.split('/')[1]
 
     return id
   } catch (err) {
@@ -54,11 +56,12 @@ const handleFileUpload = async (file, contentType, metadata) => {
 
   try {
     await waitForAvScan(id, avPollingInterval)
-
+    metadata.avScanResult = 'clean'
     console.log(`AV scan passed. Moving ${id} to clean storage.`)
   } catch (err) {
     if (err.cause === MALICIOUS_FILE) {
       console.error(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)
+      metadata.avScanResult = 'malicious'
     }
 
     return [null, err]

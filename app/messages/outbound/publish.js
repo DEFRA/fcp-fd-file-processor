@@ -9,7 +9,7 @@ const config = {
 
 const buildCloudEvent = (metadata, type) => {
   return {
-    specversion: '1.0.0',
+    specversion: '1.0.2',
     id: uuidv4(),
     source: 'fcp-fd-file-processor',
     type,
@@ -38,11 +38,11 @@ const publishMetadataEvent = async (metadata, type) => {
 }
 
 const publishCleanFileEvent = async (metadata) => {
-  await publishMetadataEvent(metadata, 'uk.gov.fcp.sfd.file.clean')
+  await publishMetadataEvent(metadata, 'uk.gov.fcp.sfd.file.clean.v1')
 }
 
 const publishMaliciousFileEvent = async (metadata) => {
-  await publishMetadataEvent(metadata, 'uk.gov.fcp.sfd.file.malicious')
+  await publishMetadataEvent(metadata, 'uk.gov.fcp.sfd.file.malicious.v1')
 }
 
 export { publishCleanFileEvent, publishMaliciousFileEvent }

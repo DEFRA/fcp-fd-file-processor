@@ -3,9 +3,20 @@ import { handleFileUpload } from '../services/upload.js'
 import { MAX_FILE_SIZE } from '../constants/file.js'
 import { MALICIOUS_FILE } from '../constants/av-results.js'
 
-const upload = {
+const handleErrorCause = (h, err) => {
+  switch (err.cause) {
+    case MALICIOUS_FILE:
+      return h.response({
+        errors: ['Uploaded file has been identified as malicious']
+      }).code(400)
+    default:
+      throw err
+  }
+}
+
+const objects = {
   method: 'POST',
-  path: '/upload',
+  path: '/objects',
   options: {
     payload: {
       output: 'stream',
@@ -46,20 +57,18 @@ const upload = {
 
     delete attributes.metadata.file
 
-    const [path, err] = await handleFileUpload(data, attributes)
+    const [id, err] = await handleFileUpload(data, attributes)
 
-    if (err?.cause === MALICIOUS_FILE) {
-      return h.response({
-        errors: ['Uploaded file has been identified as malicious']
-      }).code(400)
+    if (err) {
+      return handleErrorCause(h, err)
     }
 
     return h.response({
-      path,
+      id,
       contentType,
       metadata: attributes.metadata
     }).code(201)
   }
 }
 
-export default upload
+export default objects

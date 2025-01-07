@@ -7,14 +7,14 @@ import * as malStorage from '../../../../app/storage/blob/malicious.js'
 import FormData from 'form-data'
 import { randomUUID } from 'crypto'
 
-import { pdf, png } from '../../../mocks/files'
+import { pdf, png } from '../../../mocks/files.js'
 import { getBlob } from '../../../helpers/blob.js'
 
 const { containers: dmzContainers } = dmzStorage
 const { containers: cleanContainers } = cleanStorage
 const { containers: malContainers } = malStorage
 
-const dmzRepo = await import('../../../../app/repos/dmz')
+const dmzRepo = await import('../../../../app/repos/dmz.js')
 
 const mockAvResult = {}
 
@@ -40,11 +40,11 @@ const consoleLogSpy = jest.spyOn(console, 'log')
 const consoleWarnSpy = jest.spyOn(console, 'warn')
 const consoleErrorSpy = jest.spyOn(console, 'error')
 
-const { createServer } = await import('../../../../app/server')
+const { createServer } = await import('../../../../app/server.js')
 
 jest.setTimeout(30000)
 
-describe('upload endpoint', () => {
+describe('objects endpoint', () => {
   let server
 
   beforeAll(() => {
@@ -61,8 +61,12 @@ describe('upload endpoint', () => {
     await malStorage.createMalContainers()
   })
 
-  describe('POST /upload', () => {
+  describe('POST /objects', () => {
     test('should upload a file if the request is valid', async () => {
+      const uuidSpy = jest.spyOn(crypto, 'randomUUID')
+
+      uuidSpy.mockReturnValue('89e047f4-89e0-47b5-ad85-ed4688734290')
+
       mockAvResult.result = 'No threats found'
       mockAvResult.time = '2024-12-23 17:00:23Z'
 
@@ -75,7 +79,7 @@ describe('upload endpoint', () => {
 
       const response = await server.inject({
         method: 'POST',
-        url: '/upload',
+        url: '/objects',
         payload: formData.getBuffer(),
         headers: {
           ...formData.getHeaders(),
@@ -86,7 +90,7 @@ describe('upload endpoint', () => {
       expect(response.statusCode).toBe(201)
 
       expect(response.result).toEqual({
-        path: expect.any(String),
+        id: '89e047f4-89e0-47b5-ad85-ed4688734290',
         contentType: 'application/pdf',
         metadata: {
           filename: 'agreement.pdf',
@@ -96,15 +100,15 @@ describe('upload endpoint', () => {
         }
       })
 
-      await expect(getBlob(dmzContainers.objects, response.result.path)).rejects.toThrow('The specified blob does not exist.')
+      await expect(getBlob(dmzContainers.objects, response.result.id)).rejects.toThrow('The specified blob does not exist.')
 
-      const cleanBlob = await getBlob(cleanContainers.objects, response.result.path)
+      const cleanBlob = await getBlob(cleanContainers.objects, response.result.id)
 
       expect(cleanBlob.properties.contentType).toBe('application/pdf')
 
       expect(cleanBlob.buffer).toEqual(pdf)
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(`AV scan passed. Moving ${response.result.path} to clean storage.`)
+      expect(consoleLogSpy).toHaveBeenCalledWith(`AV scan passed. Moving ${response.result.id} to clean storage.`)
     })
 
     test('should return 400 if the request is invalid', async () => {
@@ -115,7 +119,7 @@ describe('upload endpoint', () => {
 
       const response = await server.inject({
         method: 'POST',
-        url: '/upload',
+        url: '/objects',
         payload: formData.getBuffer(),
         headers: {
           ...formData.getHeaders(),
@@ -161,7 +165,7 @@ describe('upload endpoint', () => {
 
         const response = await server.inject({
           method: 'POST',
-          url: '/upload',
+          url: '/objects',
           payload: formData.getBuffer(),
           headers: {
             ...formData.getHeaders(),
@@ -215,7 +219,7 @@ describe('upload endpoint', () => {
 
         const response = await server.inject({
           method: 'POST',
-          url: '/upload',
+          url: '/objects',
           payload: formData.getBuffer(),
           headers: {
             ...formData.getHeaders(),
@@ -263,7 +267,7 @@ describe('upload endpoint', () => {
 
         const response = await server.inject({
           method: 'POST',
-          url: '/upload',
+          url: '/objects',
           payload: formData.getBuffer(),
           headers: {
             ...formData.getHeaders(),
@@ -298,7 +302,7 @@ describe('upload endpoint', () => {
 
         const response = await server.inject({
           method: 'POST',
-          url: '/upload',
+          url: '/objects',
           payload: formData.getBuffer(),
           headers: {
             ...formData.getHeaders(),
@@ -325,7 +329,7 @@ describe('upload endpoint', () => {
 
         const response = await server.inject({
           method: 'POST',
-          url: '/upload',
+          url: '/objects',
           payload: formData.getBuffer(),
           headers: {
             ...formData.getHeaders(),
@@ -352,7 +356,7 @@ describe('upload endpoint', () => {
 
         const response = await server.inject({
           method: 'POST',
-          url: '/upload',
+          url: '/objects',
           payload: formData.getBuffer(),
           headers: {
             ...formData.getHeaders(),

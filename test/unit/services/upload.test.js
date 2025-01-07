@@ -107,7 +107,9 @@ describe('file upload service', () => {
 
     cleanRepo.addObject.mockRejectedValue(mockError)
 
-    await expect(handleFileUpload(data, { contentType: 'application/pdf', metadata })).rejects.toThrow('Failed to move file to clean storage')
+    const [, err] = await handleFileUpload(data, { contentType: 'application/pdf', metadata })
+
+    expect(err).toEqual(mockError)
   })
 
   test('should move a file to quarantine if it is identified as malicious', async () => {

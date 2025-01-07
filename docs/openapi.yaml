@@ -6,12 +6,12 @@ info:
   description: Handles file uploads with metadata for the fcp-fd-file-processor microservice.
 
 paths: 
-  /upload:
+  /objects:
     post:
       tags:
         - Upload
       summary: Upload a file with metadata
-      description: Accepts file upload requests with metadata via HTTP using the form-data method.
+      description: Accepts file upload requests with metadata via HTTP as form-data.
       requestBody:
         required: true
         content:
@@ -53,7 +53,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  path: 
+                  id: 
                     type: string
                     description: SFD identifier for the uploaded file.
                     example: "3a826edd-0ce0-488e-ab2b-d28cd37a9be6"

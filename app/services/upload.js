@@ -7,29 +7,27 @@ import * as cleanRepo from '../repos/clean.js'
 import * as maliciousRepo from '../repos/malicious.js'
 
 const handleFileUpload = async (file, attributes) => {
-  const path = await dmzRepo.addObject(file, attributes)
+  const id = await dmzRepo.addObject(file, attributes)
 
   try {
-    await dmzRepo.getAvScanStatus(path)
+    await dmzRepo.getAvScanStatus(id)
 
-    console.log(`AV scan passed. Moving ${path} to clean storage.`)
+    console.log(`AV scan passed. Moving ${id} to clean storage.`)
 
-    await cleanRepo.addObject(file, path, attributes)
+    await cleanRepo.addObject(file, id, attributes)
   } catch (err) {
     if (err.cause === MALICIOUS_FILE) {
-      console.warn(`Uploaded file ${path} has been identified as malicious. Moving to quarantine.`)
-      await maliciousRepo.quarantineObject(file, path, attributes)
-
-      return [null, err]
+      console.warn(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)
+      await maliciousRepo.quarantineObject(file, id, attributes)
     }
 
-    throw err
+    return [null, err]
   } finally {
-    console.log(`Deleting file ${path} from DMZ`)
-    await dmzRepo.deleteObject(path)
+    console.log(`Deleting file ${id} from DMZ`)
+    await dmzRepo.deleteObject(id)
   }
 
-  return [path, null]
+  return [id, null]
 }
 
 export {

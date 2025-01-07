@@ -17,7 +17,7 @@ jest.mock('../../../app/config/index.js', () => {
   }
 })
 
-const { publishFileEventMetadata } = await import('../../../app/messages/outbound/publish.js')
+const { publishCleanFileEvent, publishMaliciousFileEvent } = await import('../../../app/messages/outbound/publish.js')
 describe('publishMetadata', () => {
   const metadata = { key: 'value' }
 
@@ -30,9 +30,10 @@ describe('publishMetadata', () => {
     mockSendMessage.mockRejectedValue(error)
     const consoleErrorSpy = jest.spyOn(console, 'error')
 
-    await publishFileEventMetadata('123456', metadata, 'clean')
+    await expect(publishCleanFileEvent('123456', metadata)).rejects.toThrow('Failed to send message')
+
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Failed to publish file event of type "uk.gov.fcp.sfd.file.clean.v1"',
+      'Failed to publish file event',
       error
     )
 
@@ -40,9 +41,8 @@ describe('publishMetadata', () => {
   })
   test('should publish clean file event successfully', async () => {
     mockSendMessage.mockResolvedValue()
-    const consoleLogSpy = jest.spyOn(console, 'log')
 
-    await publishFileEventMetadata('123456', metadata, 'clean')
+    await publishCleanFileEvent('123456', metadata)
 
     expect(mockSendMessage).toHaveBeenCalledWith({
       body: {
@@ -60,16 +60,12 @@ describe('publishMetadata', () => {
       type: 'application/json',
       source: 'fcp-fd-file-processor'
     })
-    expect(consoleLogSpy).toHaveBeenCalledWith('File event of type "uk.gov.fcp.sfd.file.clean.v1" published successfully')
-
-    consoleLogSpy.mockRestore()
   })
 
   test('should publish malicious file event successfully', async () => {
     mockSendMessage.mockResolvedValue()
-    const consoleLogSpy = jest.spyOn(console, 'log')
 
-    await publishFileEventMetadata('123456', metadata, 'malicious')
+    await publishMaliciousFileEvent('123456', metadata)
 
     expect(mockSendMessage).toHaveBeenCalledWith({
       body: expect.objectContaining({
@@ -87,8 +83,5 @@ describe('publishMetadata', () => {
       type: 'application/json',
       source: 'fcp-fd-file-processor'
     })
-    expect(consoleLogSpy).toHaveBeenCalledWith('File event of type "uk.gov.fcp.sfd.file.malicious.v1" published successfully')
-
-    consoleLogSpy.mockRestore()
   })
 })

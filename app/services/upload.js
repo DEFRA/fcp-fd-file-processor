@@ -1,7 +1,7 @@
 import storage from '../config/storage.js'
 import { AV_SCAN_TIMEOUT, CLEAN_FILE, MALICIOUS_FILE } from '../constants/av-results.js'
 import { addObject, getAvScanStatus } from '../repos/dmz.js'
-import { publishFileEventMetadata } from '../messages/outbound/publish.js'
+import { publishCleanFileEvent, publishMaliciousFileEvent } from '../messages/outbound/publish.js'
 
 const avPollingInterval = storage.get('dmz.avScanPollingInterval')
 const avScanMaxAttempts = storage.get('dmz.avScanMaxAttempts')
@@ -41,7 +41,6 @@ const waitForAvScan = async (id, interval) => {
 const uploadFile = async (file, contentType, metadata) => {
   try {
     const path = await addObject(file, contentType, metadata)
-    metadata.path = path
 
     return path
   } catch (err) {
@@ -56,12 +55,12 @@ const handleFileUpload = async (file, contentType, metadata) => {
 
   try {
     await waitForAvScan(id, avPollingInterval)
-    await publishFileEventMetadata(id, metadata, 'clean')
+    await publishCleanFileEvent(id, metadata)
     console.log(`AV scan passed. Moving ${id} to clean storage.`)
   } catch (err) {
     if (err.cause === MALICIOUS_FILE) {
       console.error(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)
-      publishFileEventMetadata(id, metadata, 'malicious')
+      await publishMaliciousFileEvent(id, metadata)
     }
 
     return [null, err]

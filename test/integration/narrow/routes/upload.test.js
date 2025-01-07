@@ -87,8 +87,7 @@ describe('upload endpoint', () => {
           filename: 'agreement.pdf',
           sbi: 123456789,
           sourceSystem: 'test',
-          documentType: 'agreement',
-          path: response.result.id
+          documentType: 'agreement'
         }
       })
 

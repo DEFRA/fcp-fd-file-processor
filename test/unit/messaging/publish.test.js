@@ -1,7 +1,6 @@
 import { describe, expect, jest, test } from '@jest/globals'
 const mockSendMessage = jest.fn()
 
-// Mock the MessageSender class and its sendMessage method
 jest.mock('ffc-messaging', () => {
   return {
     MessageSender: jest.fn().mockImplementation(() => ({
@@ -18,7 +17,7 @@ jest.mock('../../../app/config/index.js', () => {
   }
 })
 
-const { publishCleanFileEvent, publishMaliciousFileEvent } = await import('../../../app/messages/outbound/publish.js')
+const { publishFileEventMetadata } = await import('../../../app/messages/outbound/publish.js')
 describe('publishMetadata', () => {
   const metadata = { key: 'value' }
 
@@ -31,8 +30,11 @@ describe('publishMetadata', () => {
     mockSendMessage.mockRejectedValue(error)
     const consoleErrorSpy = jest.spyOn(console, 'error')
 
-    await publishCleanFileEvent(metadata)
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to publish metadata', error)
+    await publishFileEventMetadata('123456', metadata, 'clean')
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Failed to publish file event of type "uk.gov.fcp.sfd.file.clean.v1"',
+      error
+    )
 
     consoleErrorSpy.mockRestore()
   })
@@ -40,22 +42,25 @@ describe('publishMetadata', () => {
     mockSendMessage.mockResolvedValue()
     const consoleLogSpy = jest.spyOn(console, 'log')
 
-    await publishCleanFileEvent(metadata)
+    await publishFileEventMetadata('123456', metadata, 'clean')
 
     expect(mockSendMessage).toHaveBeenCalledWith({
-      body: expect.objectContaining({
+      body: {
         specversion: '1.0.2',
         id: expect.any(String),
         source: 'fcp-fd-file-processor',
         type: 'uk.gov.fcp.sfd.file.clean.v1',
         time: expect.any(String),
         datacontenttype: 'application/json',
-        data: metadata
-      }),
+        data: {
+          id: '123456',
+          key: 'value'
+        }
+      },
       type: 'application/json',
       source: 'fcp-fd-file-processor'
     })
-    expect(consoleLogSpy).toHaveBeenCalledWith('Metadata published successfully')
+    expect(consoleLogSpy).toHaveBeenCalledWith('File event of type "uk.gov.fcp.sfd.file.clean.v1" published successfully')
 
     consoleLogSpy.mockRestore()
   })
@@ -64,7 +69,7 @@ describe('publishMetadata', () => {
     mockSendMessage.mockResolvedValue()
     const consoleLogSpy = jest.spyOn(console, 'log')
 
-    await publishMaliciousFileEvent(metadata)
+    await publishFileEventMetadata('123456', metadata, 'malicious')
 
     expect(mockSendMessage).toHaveBeenCalledWith({
       body: expect.objectContaining({
@@ -74,12 +79,15 @@ describe('publishMetadata', () => {
         type: 'uk.gov.fcp.sfd.file.malicious.v1',
         time: expect.any(String),
         datacontenttype: 'application/json',
-        data: metadata
+        data: {
+          id: '123456',
+          key: 'value'
+        }
       }),
       type: 'application/json',
       source: 'fcp-fd-file-processor'
     })
-    expect(consoleLogSpy).toHaveBeenCalledWith('Metadata published successfully')
+    expect(consoleLogSpy).toHaveBeenCalledWith('File event of type "uk.gov.fcp.sfd.file.malicious.v1" published successfully')
 
     consoleLogSpy.mockRestore()
   })

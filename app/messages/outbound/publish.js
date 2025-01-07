@@ -7,21 +7,24 @@ const config = {
   ...messageConfig.get('dataLayerTopic')
 }
 
-const buildCloudEvent = (metadata, type) => {
+const buildFileEventMessage = (id, metadata, avStatus) => {
   return {
     specversion: '1.0.2',
     id: uuidv4(),
     source: 'fcp-fd-file-processor',
-    type,
+    type: `uk.gov.fcp.sfd.file.${avStatus}.v1`,
     time: new Date().toISOString(),
     datacontenttype: 'application/json',
-    data: metadata
+    data: {
+      id,
+      ...metadata
+    }
   }
 }
 
-const publishMetadataEvent = async (metadata, type) => {
+const publishFileEventMetadata = async (id, metadata, avStatus) => {
   const sender = new MessageSender(config)
-  const cloudEvent = buildCloudEvent(metadata, type)
+  const cloudEvent = buildFileEventMessage(id, metadata, avStatus)
 
   const serviceBusMessage = {
     body: cloudEvent,
@@ -31,18 +34,12 @@ const publishMetadataEvent = async (metadata, type) => {
 
   try {
     await sender.sendMessage(serviceBusMessage)
-    console.log('Metadata published successfully')
+    console.log(`File event of type "${cloudEvent.type}" published successfully`)
   } catch (error) {
-    console.error('Failed to publish metadata', error)
+    console.error(`Failed to publish file event of type "${cloudEvent.type}"`, error)
   }
 }
 
-const publishCleanFileEvent = async (metadata) => {
-  await publishMetadataEvent(metadata, 'uk.gov.fcp.sfd.file.clean.v1')
+export {
+  publishFileEventMetadata
 }
-
-const publishMaliciousFileEvent = async (metadata) => {
-  await publishMetadataEvent(metadata, 'uk.gov.fcp.sfd.file.malicious.v1')
-}
-
-export { publishCleanFileEvent, publishMaliciousFileEvent }

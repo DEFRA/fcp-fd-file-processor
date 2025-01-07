@@ -4,14 +4,11 @@ import { MAX_FILE_SIZE } from '../constants/file.js'
 import { MALICIOUS_FILE } from '../constants/av-results.js'
 
 const handleErrorCause = (h, err) => {
-  switch (err.cause) {
-    case MALICIOUS_FILE:
-      return h.response({
-        errors: ['Uploaded file has been identified as malicious']
-      }).code(400)
-    default:
-      throw err
+  if (err.cause === MALICIOUS_FILE) {
+    return h.response({ errors: ['Malicious file detected'] }).code(400)
   }
+
+  throw err
 }
 
 const objects = {

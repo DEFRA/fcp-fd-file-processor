@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { source } from '../../constants/source.js'
+import source from '../../constants/source.js'
 
 const buildCleanFileMessage = (id, metadata) => ({
   body: {

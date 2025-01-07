@@ -2,7 +2,6 @@ import { v1 as uploadSchema } from '../schemas/upload/index.js'
 import { handleFileUpload } from '../services/upload.js'
 import { MAX_FILE_SIZE } from '../constants/file.js'
 import { MALICIOUS_FILE } from '../constants/av-results.js'
-import publishMetadata from '../messages/outbound/publish.js'
 
 const upload = {
   method: 'POST',
@@ -47,7 +46,6 @@ const upload = {
     const [id, err] = await handleFileUpload(data, contentType, metadata)
 
     if (err) {
-      await publishMetadata(metadata)
       if (err.cause === MALICIOUS_FILE) {
         return h.response({
           errors: ['Uploaded file has been identified as malicious']
@@ -56,7 +54,6 @@ const upload = {
 
       throw err
     }
-    await publishMetadata(metadata)
     return h.response({ id, contentType, metadata }).code(201)
   }
 }

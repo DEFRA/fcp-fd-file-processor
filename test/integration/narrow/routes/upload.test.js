@@ -87,7 +87,9 @@ describe('upload endpoint', () => {
           filename: 'agreement.pdf',
           sbi: 123456789,
           sourceSystem: 'test',
-          documentType: 'agreement'
+          documentType: 'agreement',
+          avScanResult: 'clean',
+          blobReference: response.result.id
         }
       })
 

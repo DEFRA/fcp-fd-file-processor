@@ -5,7 +5,9 @@ import { MALICIOUS_FILE } from '../constants/av-results.js'
 
 const handleErrorCause = (h, err) => {
   if (err.cause === MALICIOUS_FILE) {
-    return h.response({ errors: ['Malicious file detected'] }).code(400)
+    return h.response({
+      errors: ['Uploaded file has been identified as malicious']
+    }).code(400)
   }
 
   throw err

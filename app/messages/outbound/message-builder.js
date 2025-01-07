@@ -1,10 +1,11 @@
 import crypto from 'crypto'
+import { source } from '../../constants/source.js'
 
 const buildCleanFileMessage = (id, metadata) => ({
   body: {
     specversion: '1.0.2',
     id: crypto.randomUUID(),
-    source: 'fcp-fd-file-processor',
+    source,
     type: 'uk.gov.fcp.sfd.file.clean.v1',
     time: new Date().toISOString(),
     datacontenttype: 'application/json',
@@ -14,14 +15,14 @@ const buildCleanFileMessage = (id, metadata) => ({
     }
   },
   type: 'application/json',
-  source: 'fcp-fd-file-processor'
+  source
 })
 
 const buildMaliciousFileMessage = (id, metadata) => ({
   body: {
     specversion: '1.0.2',
     id: crypto.randomUUID(),
-    source: 'fcp-fd-file-processor',
+    source,
     type: 'uk.gov.fcp.sfd.file.malicious.v1',
     time: new Date().toISOString(),
     datacontenttype: 'application/json',
@@ -31,7 +32,7 @@ const buildMaliciousFileMessage = (id, metadata) => ({
     }
   },
   type: 'application/json',
-  source: 'fcp-fd-file-processor'
+  source
 })
 
 export { buildCleanFileMessage, buildMaliciousFileMessage }

@@ -19,7 +19,6 @@ jest.mock('../../../app/config/index.js', () => {
 })
 
 const { publishCleanFileEvent, publishMaliciousFileEvent } = await import('../../../app/messages/outbound/publish.js')
-// const { MessageSender } = await import('ffc-messaging')
 describe('publishMetadata', () => {
   const metadata = { key: 'value' }
 
@@ -45,10 +44,10 @@ describe('publishMetadata', () => {
 
     expect(mockSendMessage).toHaveBeenCalledWith({
       body: expect.objectContaining({
-        specversion: '1.0.0',
+        specversion: '1.0.2',
         id: expect.any(String),
         source: 'fcp-fd-file-processor',
-        type: 'uk.gov.fcp.sfd.file.clean',
+        type: 'uk.gov.fcp.sfd.file.clean.v1',
         time: expect.any(String),
         datacontenttype: 'application/json',
         data: metadata
@@ -69,10 +68,10 @@ describe('publishMetadata', () => {
 
     expect(mockSendMessage).toHaveBeenCalledWith({
       body: expect.objectContaining({
-        specversion: '1.0.0',
+        specversion: '1.0.2',
         id: expect.any(String),
         source: 'fcp-fd-file-processor',
-        type: 'uk.gov.fcp.sfd.file.malicious',
+        type: 'uk.gov.fcp.sfd.file.malicious.v1',
         time: expect.any(String),
         datacontenttype: 'application/json',
         data: metadata

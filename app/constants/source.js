@@ -1,2 +1,1 @@
-const source = 'fcp-fd-file-processor'
-export default source
+export const SOURCE = 'fcp-fd-file-processor'

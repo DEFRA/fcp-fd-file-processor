@@ -1,12 +1,13 @@
 import crypto from 'crypto'
-import source from '../../constants/source.js'
+import { SOURCE } from '../../constants/source.js'
+import { METADATA_CLEAN_TYPE, METADATA_MALICIOUS_TYPE } from '../../constants/metadata-type.js'
 
 const buildCleanFileMessage = (id, metadata) => ({
   body: {
     specversion: '1.0.2',
     id: crypto.randomUUID(),
-    source,
-    type: 'uk.gov.fcp.sfd.file.clean.v1',
+    source: SOURCE,
+    type: METADATA_CLEAN_TYPE,
     time: new Date().toISOString(),
     datacontenttype: 'application/json',
     data: {
@@ -14,16 +15,16 @@ const buildCleanFileMessage = (id, metadata) => ({
       ...metadata
     }
   },
-  type: 'CloudEvent',
-  source
+  type: METADATA_CLEAN_TYPE,
+  source: SOURCE
 })
 
 const buildMaliciousFileMessage = (id, metadata) => ({
   body: {
     specversion: '1.0.2',
     id: crypto.randomUUID(),
-    source,
-    type: 'uk.gov.fcp.sfd.file.malicious.v1',
+    source: SOURCE,
+    type: METADATA_MALICIOUS_TYPE,
     time: new Date().toISOString(),
     datacontenttype: 'application/json',
     data: {
@@ -31,8 +32,8 @@ const buildMaliciousFileMessage = (id, metadata) => ({
       ...metadata
     }
   },
-  type: 'CloudEvent',
-  source
+  type: METADATA_MALICIOUS_TYPE,
+  source: SOURCE
 })
 
 export { buildCleanFileMessage, buildMaliciousFileMessage }

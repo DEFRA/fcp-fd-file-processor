@@ -57,7 +57,7 @@ describe('publishMetadata', () => {
           key: 'value'
         }
       },
-      type: 'CloudEvent',
+      type: 'uk.gov.fcp.sfd.file.clean.v1',
       source: 'fcp-fd-file-processor'
     })
   })
@@ -80,7 +80,7 @@ describe('publishMetadata', () => {
           key: 'value'
         }
       }),
-      type: 'CloudEvent',
+      type: 'uk.gov.fcp.sfd.file.malicious.v1',
       source: 'fcp-fd-file-processor'
     })
   })

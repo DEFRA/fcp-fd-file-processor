@@ -14,7 +14,7 @@ const buildCleanFileMessage = (id, metadata) => ({
       ...metadata
     }
   },
-  type: 'application/json',
+  type: 'CloudEvent',
   source
 })
 
@@ -31,7 +31,7 @@ const buildMaliciousFileMessage = (id, metadata) => ({
       ...metadata
     }
   },
-  type: 'application/json',
+  type: 'CloudEvent',
   source
 })
 

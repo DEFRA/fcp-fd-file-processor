@@ -40,9 +40,9 @@ const waitForAvScan = async (id, interval) => {
 
 const uploadFile = async (file, contentType, metadata) => {
   try {
-    const path = await addObject(file, contentType, metadata)
+    const id = await addObject(file, contentType, metadata)
 
-    return path
+    return id
   } catch (err) {
     console.error(err)
 

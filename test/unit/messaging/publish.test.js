@@ -57,7 +57,7 @@ describe('publishMetadata', () => {
           key: 'value'
         }
       },
-      type: 'application/json',
+      type: 'CloudEvent',
       source: 'fcp-fd-file-processor'
     })
   })
@@ -80,7 +80,7 @@ describe('publishMetadata', () => {
           key: 'value'
         }
       }),
-      type: 'application/json',
+      type: 'CloudEvent',
       source: 'fcp-fd-file-processor'
     })
   })

@@ -1,6 +1,6 @@
 {
   "name": "fcp-fd-file-processor",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "File Processor for front door",
   "homepage": "https://github.com/DEFRA/fcp-fd-file-processor",
   "main": "app/index.js",
@@ -27,7 +27,6 @@
     "@azure/storage-blob": "12.26.0",
     "@hapi/hapi": "21.3.2",
     "applicationinsights": "2.9.1",
-    "change-case": "5.4.4",
     "convict": "6.2.4",
     "convict-format-with-validator": "6.2.0",
     "file-type": "19.6.0",

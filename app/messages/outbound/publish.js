@@ -1,10 +1,10 @@
 import { MessageSender } from 'ffc-messaging'
-import { messageConfig } from '../../config/index.js'
+import { messaging } from '../../config/index.js'
 import { buildCleanFileMessage, buildMaliciousFileMessage } from './message-builder.js'
 
 const config = {
-  ...messageConfig.get('messageQueue'),
-  ...messageConfig.get('dataLayerTopic')
+  ...messaging.get('messageQueue'),
+  ...messaging.get('dataLayerTopic')
 }
 
 const publishFileEvent = async (message) => {

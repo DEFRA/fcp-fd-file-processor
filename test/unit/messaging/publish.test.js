@@ -11,7 +11,7 @@ jest.mock('ffc-messaging', () => {
 
 jest.mock('../../../app/config/index.js', () => {
   return {
-    messageConfig: {
+    messaging: {
       get: jest.fn()
     }
   }

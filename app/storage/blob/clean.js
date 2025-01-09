@@ -5,12 +5,12 @@ import { getStorageEndpoint, getStorageCredential } from '../../utils/storage.js
 
 const endpoint = getStorageEndpoint(
   storageConfig.get('endpoint.blob'),
-  storageConfig.get('dmz.accountName')
+  storageConfig.get('clean.accountName')
 )
 
 const credential = getStorageCredential(
-  storageConfig.get('dmz.accountName'),
-  storageConfig.get('dmz.accessKey')
+  storageConfig.get('clean.accountName'),
+  storageConfig.get('clean.accessKey')
 )
 
 const client = new BlobServiceClient(
@@ -22,7 +22,7 @@ const containers = {
   objects: client.getContainerClient(storageConfig.get('container.objects'))
 }
 
-const createDmzContainers = async () => {
+const createCleanContainers = async () => {
   for (const container of Object.keys(containers)) {
     await containers[container].createIfNotExists()
   }
@@ -31,5 +31,5 @@ const createDmzContainers = async () => {
 export {
   client,
   containers,
-  createDmzContainers
+  createCleanContainers
 }

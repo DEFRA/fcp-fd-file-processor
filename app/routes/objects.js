@@ -3,9 +3,19 @@ import { handleFileUpload } from '../services/upload.js'
 import { MAX_FILE_SIZE } from '../constants/file.js'
 import { MALICIOUS_FILE } from '../constants/av-results.js'
 
-const upload = {
+const handleErrorCause = (h, err) => {
+  if (err.cause === MALICIOUS_FILE) {
+    return h.response({
+      errors: ['Uploaded file has been identified as malicious']
+    }).code(400)
+  }
+
+  throw err
+}
+
+const objects = {
   method: 'POST',
-  path: '/upload',
+  path: '/objects',
   options: {
     payload: {
       output: 'stream',
@@ -36,26 +46,28 @@ const upload = {
     const data = payload.file._data
     const contentType = payload.file.hapi.headers['content-type']
 
-    const metadata = {
-      filename: payload.file.hapi.filename,
-      ...payload
+    const attributes = {
+      metadata: {
+        filename: payload.file.hapi.filename,
+        ...payload
+      },
+      contentType
     }
 
-    delete metadata.file
+    delete attributes.metadata.file
 
-    const [id, err] = await handleFileUpload(data, contentType, metadata)
+    const [id, err] = await handleFileUpload(data, attributes)
 
     if (err) {
-      if (err.cause === MALICIOUS_FILE) {
-        return h.response({
-          errors: ['Uploaded file has been identified as malicious']
-        }).code(400)
-      }
-
-      throw err
+      return handleErrorCause(h, err)
     }
-    return h.response({ id, contentType, metadata }).code(201)
+
+    return h.response({
+      id,
+      contentType,
+      metadata: attributes.metadata
+    }).code(201)
   }
 }
 
-export default upload
+export default objects

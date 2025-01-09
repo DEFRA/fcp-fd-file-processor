@@ -1,11 +1,11 @@
 import healthy from '../routes/healthy.js'
 import healthz from '../routes/healthz.js'
-import upload from '../routes/upload.js'
+import objects from '../routes/objects.js'
 
 const routes = [
   healthy,
   healthz,
-  upload
+  objects
 ]
 
 const router = {

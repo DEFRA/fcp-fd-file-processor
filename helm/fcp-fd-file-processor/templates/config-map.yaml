@@ -5,6 +5,8 @@ data:
   PORT: {{ quote .Values.container.port }}
   APPINSIGHTS_CLOUDROLE: {{ quote .Values.name }}
   DMZ_STORAGE_ACCOUNT_NAME: {{ quote .Values.container.dmzStorageAccountName }}
+  CLN_STORAGE_ACCOUNT_NAME: {{ quote .Values.container.clnStorageAccountName }}
+  MAL_STORAGE_ACCOUNT_NAME: {{ quote .Values.container.malStorageAccountName }}
   AV_SCAN_POLLING_INTERVAL: {{ quote .Values.container.avScanPollingInterval }}
   AV_SCAN_MAX_ATTEMPTS: {{ quote .Values.container.avScanMaxAttempts }}
   ALLOW_TEXT_FILES: {{ quote .Values.container.allowTextFiles }}

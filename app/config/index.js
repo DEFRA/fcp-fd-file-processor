@@ -1,7 +1,7 @@
-import storage from './storage.js'
-import messaging from './messaging.js'
+import storageConfig from './storage.js'
+import messagingConfig from './messaging.js'
 
 export {
-  storage,
-  messaging
+  storageConfig,
+  messagingConfig
 }

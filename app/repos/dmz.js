@@ -1,9 +1,12 @@
-import { snakeCase } from 'change-case/keys'
-
 import { containers } from '../storage/blob/dmz.js'
-import { CLEAN_FILE, MALICIOUS_FILE } from '../constants/av-results.js'
+import { AV_SCAN_TIMEOUT, CLEAN_FILE, MALICIOUS_FILE } from '../constants/av-results.js'
+import { uploadBlob, getBlobTags, deleteBlob } from '../storage/blob/common.js'
+import storage from '../config/storage.js'
 
 const { objects } = containers
+
+const avPollingInterval = storage.get('dmz.avScanPollingInterval')
+const avScanMaxAttempts = storage.get('dmz.avScanMaxAttempts')
 
 const parseAvStatus = (status) => {
   switch (status) {
@@ -16,53 +19,51 @@ const parseAvStatus = (status) => {
   }
 }
 
-const addObject = async (file, contentType, metadata) => {
-  const folderName = crypto.randomUUID()
-  const blobName = crypto.randomUUID()
+const addObject = async (file, attributes) => {
+  const path = crypto.randomUUID()
 
-  const path = `${folderName}/${blobName}`
-
-  const blob = objects.getBlockBlobClient(path)
-
-  const parsedMetadata = snakeCase(metadata)
-
-  for (const key of Object.keys(parsedMetadata)) {
-    parsedMetadata[key] = parsedMetadata[key].toString()
-  }
-
-  await blob.uploadData(file, {
-    blobHTTPHeaders: {
-      blobContentType: contentType
-    },
-    metadata: parsedMetadata
-  })
+  await uploadBlob(objects, file, path, attributes)
 
   return path
 }
 
 const deleteObject = async (path) => {
-  const blob = objects.getBlockBlobClient(path)
-
-  await blob.deleteIfExists()
+  await deleteBlob(objects, path)
 }
 
 const getAvScanStatus = async (path) => {
-  const blob = objects.getBlockBlobClient(path)
+  let avResult
+  let attempts = 0
 
-  const { tags } = await blob.getTags()
+  while (!avResult && attempts < avScanMaxAttempts) {
+    try {
+      const tags = await getBlobTags(objects, path)
 
-  const raw = tags['Malware Scanning scan result']
-  const time = tags['Malware Scanning scan time UTC']
+      const raw = tags['Malware Scanning scan result']
 
-  if (!raw) {
-    return null
+      avResult = raw ? parseAvStatus(raw) : null
+    } catch (err) {
+      console.error(`An error occurred while polling AV scan status for ${path}:`, err)
+    }
+
+    if (!avResult) {
+      await new Promise(resolve => setTimeout(resolve, avPollingInterval))
+    }
+
+    attempts += 1
   }
 
-  const status = parseAvStatus(raw)
+  if (!avResult) {
+    throw new Error(`AV scan for ${path} timed out after ${attempts} attempts`, { cause: AV_SCAN_TIMEOUT })
+  }
 
-  return {
-    status,
-    time
+  switch (avResult) {
+    case CLEAN_FILE:
+      return avResult
+    case MALICIOUS_FILE:
+      throw new Error('Uploaded file has been identified as malicious', { cause: MALICIOUS_FILE })
+    default:
+      throw new Error('An error occurred while scanning the uploaded file', { cause: avResult })
   }
 }
 

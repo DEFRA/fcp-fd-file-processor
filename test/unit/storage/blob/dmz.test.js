@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals'
 
 const mockSharedKeyCredential = jest.fn()
 const mockDefaultAzureCredential = jest.fn()
+const mockGetBearerTokenProvider = jest.fn()
 
 const mockCreateIfNotExists = jest.fn()
 
@@ -17,7 +18,8 @@ jest.unstable_mockModule('@azure/storage-blob', () => ({
 }))
 
 jest.unstable_mockModule('@azure/identity', () => ({
-  DefaultAzureCredential: mockDefaultAzureCredential
+  DefaultAzureCredential: mockDefaultAzureCredential,
+  getBearerTokenProvider: mockGetBearerTokenProvider
 }))
 
 describe('DMZ Blob Storage Client', () => {

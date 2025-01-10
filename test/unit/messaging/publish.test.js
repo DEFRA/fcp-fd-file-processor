@@ -49,7 +49,7 @@ describe('publishMetadata', () => {
         specversion: '1.0.2',
         id: expect.any(String),
         source: 'fcp-fd-file-processor',
-        type: 'uk.gov.fcp.sfd.file.clean.v1',
+        type: 'uk.gov.fcp.sfd.object.av.clean',
         time: expect.any(String),
         datacontenttype: 'application/json',
         data: {
@@ -57,7 +57,7 @@ describe('publishMetadata', () => {
           key: 'value'
         }
       },
-      type: 'uk.gov.fcp.sfd.file.clean.v1',
+      type: 'uk.gov.fcp.sfd.object.av.clean',
       source: 'fcp-fd-file-processor'
     })
   })
@@ -72,7 +72,7 @@ describe('publishMetadata', () => {
         specversion: '1.0.2',
         id: expect.any(String),
         source: 'fcp-fd-file-processor',
-        type: 'uk.gov.fcp.sfd.file.malicious.v1',
+        type: 'uk.gov.fcp.sfd.object.av.malicious',
         time: expect.any(String),
         datacontenttype: 'application/json',
         data: {
@@ -80,7 +80,7 @@ describe('publishMetadata', () => {
           key: 'value'
         }
       }),
-      type: 'uk.gov.fcp.sfd.file.malicious.v1',
+      type: 'uk.gov.fcp.sfd.object.av.malicious',
       source: 'fcp-fd-file-processor'
     })
   })

@@ -1,3 +1,2 @@
 resources:
-  storage:
-    - name: dmz
+  identity: fd-file-processor

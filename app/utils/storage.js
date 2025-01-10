@@ -1,18 +1,6 @@
 import { StorageSharedKeyCredential } from '@azure/storage-blob'
-import isProd from '../utils/is-prod.js'
 import { storage } from '../config/index.js'
-
-import { DefaultAzureCredential, getBearerTokenProvider } from '@azure/identity'
-
-if (isProd()) {
-  storage.hooks = {
-    beforeConnect: async (cfg) => {
-      const credential = new DefaultAzureCredential({ managedIdentityClientId: process.env.AZURE_CLIENT_ID })
-      const tokenProvider = getBearerTokenProvider(credential, 'https://ossrdbms-aad.database.windows.net/.default')
-      cfg.password = tokenProvider
-    }
-  }
-}
+import { DefaultAzureCredential } from '@azure/identity'
 
 const getStorageEndpoint = (endpoint, accountName) => {
   return endpoint.replace('?', accountName)

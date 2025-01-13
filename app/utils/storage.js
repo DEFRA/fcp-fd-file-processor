@@ -1,6 +1,7 @@
 import { StorageSharedKeyCredential } from '@azure/storage-blob'
-import { storage } from '../config/index.js'
 import { DefaultAzureCredential } from '@azure/identity'
+
+import { storage } from '../config/index.js'
 
 const getStorageEndpoint = (endpoint, accountName) => {
   return endpoint.replace('?', accountName)

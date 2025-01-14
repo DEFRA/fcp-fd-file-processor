@@ -19,9 +19,16 @@ jest.unstable_mockModule('../../../app/repos/malicious', () => ({
   quarantineObject: jest.fn()
 }))
 
+jest.unstable_mockModule('../../../app/messages/outbound/publish', () => ({
+  publishCleanFileEvent: jest.fn(),
+  publishMaliciousFileEvent: jest.fn()
+}))
+
 const dmzRepo = await import('../../../app/repos/dmz')
 const cleanRepo = await import('../../../app/repos/clean')
 const maliciousRepo = await import('../../../app/repos/malicious')
+
+const { publishCleanFileEvent, publishMaliciousFileEvent } = await import('../../../app/messages/outbound/publish')
 
 const { handleFileUpload } = await import('../../../app/services/upload')
 
@@ -87,6 +94,27 @@ describe('file upload service', () => {
     expect(cleanRepo.addObject).toHaveBeenCalledWith(data, id, { contentType: 'application/pdf', metadata })
   })
 
+  test('should publish a clean file event if AV scan passes', async () => {
+    const data = pdf
+
+    const metadata = {
+      filename: 'test.pdf',
+      sbi: 123456789,
+      sourceSystem: 'test',
+      documentType: 'agreement'
+    }
+
+    const id = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
+
+    dmzRepo.addObject.mockResolvedValue(id)
+
+    dmzRepo.getAvScanStatus.mockResolvedValue('CLEAN_FILE')
+
+    await handleFileUpload(data, { contentType: 'application/pdf', metadata })
+
+    expect(publishCleanFileEvent).toHaveBeenCalledWith(id, metadata)
+  })
+
   test('should return an error if moving the file to clean storage fails', async () => {
     const data = pdf
 
@@ -133,6 +161,29 @@ describe('file upload service', () => {
     await handleFileUpload(data, { contentType: 'application/pdf', metadata })
 
     expect(maliciousRepo.quarantineObject).toHaveBeenCalledWith(data, id, { contentType: 'application/pdf', metadata })
+  })
+
+  test('should publish a malicious file event if AV scan fails', async () => {
+    const data = pdf
+
+    const metadata = {
+      filename: 'test.pdf',
+      sbi: 123456789,
+      sourceSystem: 'test',
+      documentType: 'agreement'
+    }
+
+    const id = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
+
+    dmzRepo.addObject.mockResolvedValue(id)
+
+    const mockError = new Error('Uploaded file has been identified as malicious', { cause: 'MALICIOUS_FILE' })
+
+    dmzRepo.getAvScanStatus.mockRejectedValue(mockError)
+
+    await handleFileUpload(data, { contentType: 'application/pdf', metadata })
+
+    expect(publishMaliciousFileEvent).toHaveBeenCalledWith(id, metadata)
   })
 
   test('should throw an error if moving the file to quarantine fails', async () => {

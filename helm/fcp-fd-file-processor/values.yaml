@@ -51,6 +51,8 @@ readinessProbe:
   failureThreshold: 3
   timeoutSeconds: 5
 
+workloadIdentity: true
+
 azureIdentity:
   resourceID: not-a-real-clientID
   clientID: not-a-real-clientID

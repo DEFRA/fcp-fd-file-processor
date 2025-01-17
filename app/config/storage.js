@@ -17,7 +17,7 @@ const storage = convict({
     format: String,
     nullable: !isProd(),
     default: null,
-    env: 'MANAGED_IDENTITY_CLIENT_ID'
+    env: 'AZURE_CLIENT_ID'
   },
   dmz: {
     accountName: {

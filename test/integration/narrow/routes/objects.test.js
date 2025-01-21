@@ -36,6 +36,13 @@ jest.unstable_mockModule('../../../../app/repos/dmz', () => ({
   getAvScanStatus: updateBlobTagStub
 }))
 
+jest.unstable_mockModule('../../../../app/messages/outbound/publish', () => ({
+  publishCleanFileEvent: jest.fn(),
+  publishMaliciousFileEvent: jest.fn()
+}))
+
+const { publishCleanFileEvent, publishMaliciousFileEvent } = await import('../../../../app/messages/outbound/publish.js')
+
 const consoleLogSpy = jest.spyOn(console, 'log')
 const consoleWarnSpy = jest.spyOn(console, 'warn')
 const consoleErrorSpy = jest.spyOn(console, 'error')
@@ -87,20 +94,24 @@ describe('objects endpoint', () => {
         }
       })
 
+      const expectedMetadata = {
+        filename: 'agreement.pdf',
+        sbi: 123456789,
+        sourceSystem: 'test',
+        documentType: 'agreement'
+      }
+
       expect(response.statusCode).toBe(201)
 
       expect(response.result).toEqual({
         id: '89e047f4-89e0-47b5-ad85-ed4688734290',
         contentType: 'application/pdf',
-        metadata: {
-          filename: 'agreement.pdf',
-          sbi: 123456789,
-          sourceSystem: 'test',
-          documentType: 'agreement'
-        }
+        metadata: expectedMetadata
       })
 
       await expect(getBlob(dmzContainers.objects, response.result.id)).rejects.toThrow('The specified blob does not exist.')
+
+      expect(publishCleanFileEvent).toHaveBeenCalledWith('89e047f4-89e0-47b5-ad85-ed4688734290', expectedMetadata)
 
       const cleanBlob = await getBlob(cleanContainers.objects, response.result.id)
 
@@ -181,9 +192,18 @@ describe('objects endpoint', () => {
 
         const id = generatedIds[0]
 
+        const expectedMetadata = {
+          filename: 'agreement.pdf',
+          sbi: 123456789,
+          sourceSystem: 'test',
+          documentType: 'agreement'
+        }
+
         expect(consoleWarnSpy).toHaveBeenCalledWith(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)
 
         await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
+
+        expect(publishMaliciousFileEvent).toHaveBeenCalledWith(id, expectedMetadata)
 
         const malBlob = await getBlob(malContainers.objects, id)
 

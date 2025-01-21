@@ -1,2 +1,5 @@
 resources:
   identity: fd-file-processor
+  topics:
+    - name: fcp-fd-data
+      role: sender

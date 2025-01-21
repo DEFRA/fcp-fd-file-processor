@@ -1,16 +1,16 @@
 import { BlobServiceClient } from '@azure/storage-blob'
 
-import { storage } from '../../config/index.js'
+import { storageConfig } from '../../config/index.js'
 import { getStorageEndpoint, getStorageCredential } from '../../utils/storage.js'
 
 const endpoint = getStorageEndpoint(
-  storage.get('endpoint.blob'),
-  storage.get('clean.accountName')
+  storageConfig.get('endpoint.blob'),
+  storageConfig.get('clean.accountName')
 )
 
 const credential = getStorageCredential(
-  storage.get('clean.accountName'),
-  storage.get('clean.accessKey')
+  storageConfig.get('clean.accountName'),
+  storageConfig.get('clean.accessKey')
 )
 
 const client = new BlobServiceClient(
@@ -19,7 +19,7 @@ const client = new BlobServiceClient(
 )
 
 const containers = {
-  objects: client.getContainerClient(storage.get('container.objects'))
+  objects: client.getContainerClient(storageConfig.get('container.objects'))
 }
 
 const createCleanContainers = async () => {

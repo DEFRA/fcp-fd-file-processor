@@ -57,6 +57,10 @@ azureIdentity:
   resourceID: not-a-real-clientID
   clientID: not-a-real-clientID
 
+service:
+  port: 80
+  type: ClusterIP
+
 ingress:
   class: nginx
   endpoint: fcp-fd-file-processor

@@ -104,22 +104,20 @@ describe('objects endpoint', () => {
       expect(response.statusCode).toBe(201)
 
       expect(response.result).toEqual({
-        id: '89e047f4-89e0-47b5-ad85-ed4688734290',
-        contentType: 'application/pdf',
-        metadata: expectedMetadata
+        objectId: '89e047f4-89e0-47b5-ad85-ed4688734290'
       })
 
-      await expect(getBlob(dmzContainers.objects, response.result.id)).rejects.toThrow('The specified blob does not exist.')
+      await expect(getBlob(dmzContainers.objects, response.result.objectId)).rejects.toThrow('The specified blob does not exist.')
 
       expect(publishCleanFileEvent).toHaveBeenCalledWith('89e047f4-89e0-47b5-ad85-ed4688734290', expectedMetadata)
 
-      const cleanBlob = await getBlob(cleanContainers.objects, response.result.id)
+      const cleanBlob = await getBlob(cleanContainers.objects, response.result.objectId)
 
       expect(cleanBlob.properties.contentType).toBe('application/pdf')
 
       expect(cleanBlob.buffer).toEqual(pdf)
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(`AV scan passed. Moving ${response.result.id} to clean storage.`)
+      expect(consoleLogSpy).toHaveBeenCalledWith(`AV scan passed. Moving ${response.result.objectId} to clean storage.`)
     })
 
     test('should return 400 if the request is invalid', async () => {

@@ -70,6 +70,8 @@ paths:
                         $ref: '#/components/schemas/sourceSystem'
                       documentType:
                         $ref: '#/components/schemas/documentType'
+                      appId:
+                        $ref: '#/components/schemas/appId'
                     required:
                       - sbi
                       - crn

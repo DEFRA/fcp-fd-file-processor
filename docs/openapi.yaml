@@ -46,42 +46,18 @@ paths:
                       format: binary
                       example: form-data; name="file"; filename="example.pdf"
       responses:
-        '200':
+        '201':
           description: File uploaded successfully
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  id: 
+                  objectId: 
                     type: string
                     description: SFD identifier for the uploaded file.
                     example: "3a826edd-0ce0-488e-ab2b-d28cd37a9be6"
-                  metadata:
-                    type: object
-                    properties:
-                      sbi:
-                        $ref: '#/components/schemas/sbi'
-                      crn:
-                        $ref: '#/components/schemas/crn'
-                      sourceSystem:
-                        $ref: '#/components/schemas/sourceSystem'
-                      documentType:
-                        $ref: '#/components/schemas/documentType'
-                    required:
-                      - sbi
-                      - crn
-                      - sourceSystem
-                      - documentType
-                    example:
-                      sbi: 123456789
-                      crn: 1234567890
-                      sourceSystem: "ahwp"
-                      documentType: "agreement"
-                  contentType:
-                    type: string
-                    description: The content type of the uploaded file.
-                    example: "application/pdf"
+            
 
         '400':
           description: File upload request is invalid.
@@ -97,9 +73,9 @@ paths:
                     type: array
                     items:
                       type: string
-                      example:
-                        - Property 'sbi' is required.
-                        - The uploaded file has been flagged as potentially malicious. 
+                    example:
+                      - Property 'sbi' is required.
+                      - The uploaded file has been flagged as potentially malicious. 
         '415':
           description: Unsupported media type.
           content:

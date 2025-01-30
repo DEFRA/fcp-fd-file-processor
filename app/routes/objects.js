@@ -56,16 +56,14 @@ const objects = {
 
     delete attributes.metadata.file
 
-    const [id, err] = await handleFileUpload(data, attributes)
+    const [objectId, err] = await handleFileUpload(data, attributes)
 
     if (err) {
       return handleErrorCause(h, err)
     }
 
     return h.response({
-      id,
-      contentType,
-      metadata: attributes.metadata
+      objectId
     }).code(201)
   }
 }

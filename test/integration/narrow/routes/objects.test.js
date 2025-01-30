@@ -188,7 +188,7 @@ describe('objects endpoint', () => {
           errors: ['Uploaded file has been identified as malicious']
         })
 
-        const id = generatedIds[0]
+        const objectId = generatedIds[0]
 
         const expectedMetadata = {
           filename: 'agreement.pdf',
@@ -197,13 +197,13 @@ describe('objects endpoint', () => {
           documentType: 'agreement'
         }
 
-        expect(consoleWarnSpy).toHaveBeenCalledWith(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)
+        expect(consoleWarnSpy).toHaveBeenCalledWith(`Uploaded file ${objectId} has been identified as malicious. Moving to quarantine.`)
 
-        await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
+        await expect(getBlob(dmzContainers.objects, objectId)).rejects.toThrow('The specified blob does not exist.')
 
-        expect(publishMaliciousFileEvent).toHaveBeenCalledWith(id, expectedMetadata)
+        expect(publishMaliciousFileEvent).toHaveBeenCalledWith(objectId, expectedMetadata)
 
-        const malBlob = await getBlob(malContainers.objects, id)
+        const malBlob = await getBlob(malContainers.objects, objectId)
 
         expect(malBlob.properties.contentType).toBe('application/pdf')
 
@@ -247,9 +247,9 @@ describe('objects endpoint', () => {
 
         expect(response.statusCode).toBe(500)
 
-        const id = `${generatedIds[0]}/${generatedIds[1]}`
+        const objectId = `${generatedIds[0]}/${generatedIds[1]}`
 
-        await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
+        await expect(getBlob(dmzContainers.objects, objectId)).rejects.toThrow('The specified blob does not exist.')
 
         expect(response.result).toEqual({
           error: 'Internal Server Error',
@@ -295,9 +295,9 @@ describe('objects endpoint', () => {
 
         expect(response.statusCode).toBe(500)
 
-        const id = `${generatedIds[0]}/${generatedIds[1]}`
+        const objectId = `${generatedIds[0]}/${generatedIds[1]}`
 
-        await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
+        await expect(getBlob(dmzContainers.objects, objectId)).rejects.toThrow('The specified blob does not exist.')
 
         expect(response.result).toEqual({
           error: 'Internal Server Error',

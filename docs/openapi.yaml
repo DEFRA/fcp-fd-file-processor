@@ -48,14 +48,14 @@ paths:
                       format: binary
                       example: form-data; name="file"; filename="example.pdf"
       responses:
-        '200':
+        '201':
           description: File uploaded successfully
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  id: 
+                  objectId: 
                     type: string
                     description: SFD identifier for the uploaded file.
                     example: "3a826edd-0ce0-488e-ab2b-d28cd37a9be6"
@@ -101,9 +101,9 @@ paths:
                     type: array
                     items:
                       type: string
-                      example:
-                        - Property 'sbi' is required.
-                        - The uploaded file has been flagged as potentially malicious. 
+                    example:
+                      - Property 'sbi' is required.
+                      - The uploaded file has been flagged as potentially malicious. 
         '415':
           description: Unsupported media type.
           content:

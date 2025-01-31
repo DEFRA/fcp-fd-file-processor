@@ -83,15 +83,15 @@ describe('file upload service', () => {
       documentType: 'agreement'
     }
 
-    const id = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
+    const objectId = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
 
-    dmzRepo.addObject.mockResolvedValue(id)
+    dmzRepo.addObject.mockResolvedValue(objectId)
 
     dmzRepo.getAvScanStatus.mockResolvedValue('CLEAN_FILE')
 
     await handleFileUpload(data, { contentType: 'application/pdf', metadata })
 
-    expect(cleanRepo.addObject).toHaveBeenCalledWith(data, id, { contentType: 'application/pdf', metadata })
+    expect(cleanRepo.addObject).toHaveBeenCalledWith(data, objectId, { contentType: 'application/pdf', metadata })
   })
 
   test('should publish a clean file event if AV scan passes', async () => {
@@ -104,15 +104,15 @@ describe('file upload service', () => {
       documentType: 'agreement'
     }
 
-    const id = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
+    const objectId = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
 
-    dmzRepo.addObject.mockResolvedValue(id)
+    dmzRepo.addObject.mockResolvedValue(objectId)
 
     dmzRepo.getAvScanStatus.mockResolvedValue('CLEAN_FILE')
 
     await handleFileUpload(data, { contentType: 'application/pdf', metadata })
 
-    expect(publishCleanFileEvent).toHaveBeenCalledWith(id, metadata)
+    expect(publishCleanFileEvent).toHaveBeenCalledWith(objectId, metadata)
   })
 
   test('should return an error if moving the file to clean storage fails', async () => {
@@ -125,11 +125,11 @@ describe('file upload service', () => {
       documentType: 'agreement'
     }
 
-    const id = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
+    const objectId = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
 
     dmzRepo.getAvScanStatus.mockResolvedValue('CLEAN_FILE')
 
-    dmzRepo.addObject.mockResolvedValue(id)
+    dmzRepo.addObject.mockResolvedValue(objectId)
 
     const mockError = new Error('Failed to move file to clean storage')
 
@@ -150,9 +150,9 @@ describe('file upload service', () => {
       documentType: 'agreement'
     }
 
-    const id = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
+    const objectId = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
 
-    dmzRepo.addObject.mockResolvedValue(id)
+    dmzRepo.addObject.mockResolvedValue(objectId)
 
     const mockError = new Error('Uploaded file has been identified as malicious', { cause: 'MALICIOUS_FILE' })
 
@@ -160,7 +160,7 @@ describe('file upload service', () => {
 
     await handleFileUpload(data, { contentType: 'application/pdf', metadata })
 
-    expect(maliciousRepo.quarantineObject).toHaveBeenCalledWith(data, id, { contentType: 'application/pdf', metadata })
+    expect(maliciousRepo.quarantineObject).toHaveBeenCalledWith(data, objectId, { contentType: 'application/pdf', metadata })
   })
 
   test('should publish a malicious file event if AV scan fails', async () => {
@@ -173,9 +173,9 @@ describe('file upload service', () => {
       documentType: 'agreement'
     }
 
-    const id = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
+    const objectId = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
 
-    dmzRepo.addObject.mockResolvedValue(id)
+    dmzRepo.addObject.mockResolvedValue(objectId)
 
     const mockError = new Error('Uploaded file has been identified as malicious', { cause: 'MALICIOUS_FILE' })
 
@@ -183,7 +183,7 @@ describe('file upload service', () => {
 
     await handleFileUpload(data, { contentType: 'application/pdf', metadata })
 
-    expect(publishMaliciousFileEvent).toHaveBeenCalledWith(id, metadata)
+    expect(publishMaliciousFileEvent).toHaveBeenCalledWith(objectId, metadata)
   })
 
   test('should throw an error if moving the file to quarantine fails', async () => {
@@ -196,13 +196,13 @@ describe('file upload service', () => {
       documentType: 'agreement'
     }
 
-    const id = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
+    const objectId = 'af173eb1-e1dc-44dc-ab51-ff8a817371b2'
 
     const mockMaliciousError = new Error('Uploaded file has been identified as malicious', { cause: 'MALICIOUS_FILE' })
 
     dmzRepo.getAvScanStatus.mockRejectedValue(mockMaliciousError)
 
-    dmzRepo.addObject.mockResolvedValue(id)
+    dmzRepo.addObject.mockResolvedValue(objectId)
 
     const mockError = new Error('Failed to move file to quarantine')
 

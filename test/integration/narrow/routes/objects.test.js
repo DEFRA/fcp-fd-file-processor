@@ -104,22 +104,20 @@ describe('objects endpoint', () => {
       expect(response.statusCode).toBe(201)
 
       expect(response.result).toEqual({
-        id: '89e047f4-89e0-47b5-ad85-ed4688734290',
-        contentType: 'application/pdf',
-        metadata: expectedMetadata
+        objectId: '89e047f4-89e0-47b5-ad85-ed4688734290'
       })
 
-      await expect(getBlob(dmzContainers.objects, response.result.id)).rejects.toThrow('The specified blob does not exist.')
+      await expect(getBlob(dmzContainers.objects, response.result.objectId)).rejects.toThrow('The specified blob does not exist.')
 
       expect(publishCleanFileEvent).toHaveBeenCalledWith('89e047f4-89e0-47b5-ad85-ed4688734290', expectedMetadata)
 
-      const cleanBlob = await getBlob(cleanContainers.objects, response.result.id)
+      const cleanBlob = await getBlob(cleanContainers.objects, response.result.objectId)
 
       expect(cleanBlob.properties.contentType).toBe('application/pdf')
 
       expect(cleanBlob.buffer).toEqual(pdf)
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(`AV scan passed. Moving ${response.result.id} to clean storage.`)
+      expect(consoleLogSpy).toHaveBeenCalledWith(`AV scan passed. Moving ${response.result.objectId} to clean storage.`)
     })
 
     test('should return 400 if the request is invalid', async () => {
@@ -190,7 +188,7 @@ describe('objects endpoint', () => {
           errors: ['Uploaded file has been identified as malicious']
         })
 
-        const id = generatedIds[0]
+        const objectId = generatedIds[0]
 
         const expectedMetadata = {
           filename: 'agreement.pdf',
@@ -199,13 +197,13 @@ describe('objects endpoint', () => {
           documentType: 'agreement'
         }
 
-        expect(consoleWarnSpy).toHaveBeenCalledWith(`Uploaded file ${id} has been identified as malicious. Moving to quarantine.`)
+        expect(consoleWarnSpy).toHaveBeenCalledWith(`Uploaded file ${objectId} has been identified as malicious. Moving to quarantine.`)
 
-        await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
+        await expect(getBlob(dmzContainers.objects, objectId)).rejects.toThrow('The specified blob does not exist.')
 
-        expect(publishMaliciousFileEvent).toHaveBeenCalledWith(id, expectedMetadata)
+        expect(publishMaliciousFileEvent).toHaveBeenCalledWith(objectId, expectedMetadata)
 
-        const malBlob = await getBlob(malContainers.objects, id)
+        const malBlob = await getBlob(malContainers.objects, objectId)
 
         expect(malBlob.properties.contentType).toBe('application/pdf')
 
@@ -249,9 +247,9 @@ describe('objects endpoint', () => {
 
         expect(response.statusCode).toBe(500)
 
-        const id = `${generatedIds[0]}/${generatedIds[1]}`
+        const objectId = `${generatedIds[0]}/${generatedIds[1]}`
 
-        await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
+        await expect(getBlob(dmzContainers.objects, objectId)).rejects.toThrow('The specified blob does not exist.')
 
         expect(response.result).toEqual({
           error: 'Internal Server Error',
@@ -297,9 +295,9 @@ describe('objects endpoint', () => {
 
         expect(response.statusCode).toBe(500)
 
-        const id = `${generatedIds[0]}/${generatedIds[1]}`
+        const objectId = `${generatedIds[0]}/${generatedIds[1]}`
 
-        await expect(getBlob(dmzContainers.objects, id)).rejects.toThrow('The specified blob does not exist.')
+        await expect(getBlob(dmzContainers.objects, objectId)).rejects.toThrow('The specified blob does not exist.')
 
         expect(response.result).toEqual({
           error: 'Internal Server Error',

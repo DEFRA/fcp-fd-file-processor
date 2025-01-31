@@ -18,14 +18,14 @@ const publishFileEvent = async (message) => {
   }
 }
 
-const publishCleanFileEvent = async (id, metadata) => {
-  const message = buildCleanFileMessage(id, metadata)
+const publishCleanFileEvent = async (objectId, metadata) => {
+  const message = buildCleanFileMessage(objectId, metadata)
 
   await publishFileEvent(message)
 }
 
-const publishMaliciousFileEvent = async (id, metadata) => {
-  const message = buildMaliciousFileMessage(id, metadata)
+const publishMaliciousFileEvent = async (objectId, metadata) => {
+  const message = buildMaliciousFileMessage(objectId, metadata)
 
   await publishFileEvent(message)
 }

@@ -62,7 +62,8 @@ const v1 = Joi.object({
   sbi: sbi.required(),
   crn: crn.optional(),
   sourceSystem: Joi.string().regex(/^[a-z0-9-_]+$/).required(),
-  documentType: Joi.string().regex(/^[a-z0-9-_]+$/).required()
+  documentType: Joi.string().regex(/^[a-z0-9-_]+$/).required(),
+  applicationId: Joi.string().optional()
 }).required()
 
 export default v1

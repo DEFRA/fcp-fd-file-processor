@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   title: Single Front Door (SFD) File Processor
-  version: 1.1.0
+  version: 1.2.0
   description: Handles file uploads with metadata for the fcp-fd-file-processor microservice.
 
 paths: 
@@ -36,6 +36,8 @@ paths:
                   $ref: '#/components/schemas/sourceSystem'
                 documentType:
                   $ref: '#/components/schemas/documentType'
+                applicationId:
+                  $ref: '#/components/schemas/applicationId'
             encoding:
               file:
                 contentType: application/pdf
@@ -57,7 +59,33 @@ paths:
                     type: string
                     description: SFD identifier for the uploaded file.
                     example: "3a826edd-0ce0-488e-ab2b-d28cd37a9be6"
-            
+                  metadata:
+                    type: object
+                    properties:
+                      sbi:
+                        $ref: '#/components/schemas/sbi'
+                      crn:
+                        $ref: '#/components/schemas/crn'
+                      sourceSystem:
+                        $ref: '#/components/schemas/sourceSystem'
+                      documentType:
+                        $ref: '#/components/schemas/documentType'
+                      applicationId:
+                        $ref: '#/components/schemas/applicationId'
+                    required:
+                      - sbi
+                      - crn
+                      - sourceSystem
+                      - documentType
+                    example:
+                      sbi: 123456789
+                      crn: 1234567890
+                      sourceSystem: "ahwp"
+                      documentType: "agreement"
+                  contentType:
+                    type: string
+                    description: The content type of the uploaded file.
+                    example: "application/pdf"
 
         '400':
           description: File upload request is invalid.
@@ -119,3 +147,7 @@ components:
       maxLength: 100
       pattern: "^[a-z0-9-_]+$"
       example: "agreement"
+    applicationId:
+      type: string
+      description: Optional/flexible field which can be used for any purpose if needed
+

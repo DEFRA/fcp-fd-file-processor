@@ -36,8 +36,8 @@ paths:
                   $ref: '#/components/schemas/sourceSystem'
                 documentType:
                   $ref: '#/components/schemas/documentType'
-                appId:
-                  $ref: '#/components/schemas/appId'
+                applicationId:
+                  $ref: '#/components/schemas/applicationId'
             encoding:
               file:
                 contentType: application/pdf
@@ -70,8 +70,8 @@ paths:
                         $ref: '#/components/schemas/sourceSystem'
                       documentType:
                         $ref: '#/components/schemas/documentType'
-                      appId:
-                        $ref: '#/components/schemas/appId'
+                      applicationId:
+                        $ref: '#/components/schemas/applicationId'
                     required:
                       - sbi
                       - crn
@@ -147,7 +147,7 @@ components:
       maxLength: 100
       pattern: "^[a-z0-9-_]+$"
       example: "agreement"
-    appId:
+    applicationId:
       type: string
       description: Optional/flexible field which can be used for any purpose if needed
 

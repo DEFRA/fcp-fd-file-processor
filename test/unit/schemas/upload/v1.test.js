@@ -20,7 +20,7 @@ describe('upload schema', () => {
         sbi: 123456789,
         sourceSystem: 'source',
         documentType: 'agreement',
-        appId: 'any-random-string'
+        applicationId: 'any-random-string'
       }
 
       const value = await v1.validateAsync(payload)
@@ -43,7 +43,7 @@ describe('upload schema', () => {
         sbi: 123456789,
         sourceSystem: 'source',
         documentType: 'agreement',
-        appId: 'any-random-string'
+        applicationId: 'any-random-string'
       }
 
       let error
@@ -76,7 +76,7 @@ describe('upload schema', () => {
         sbi: 123456789,
         sourceSystem: 'source',
         documentType: 'agreement',
-        appId: 'any-random-string'
+        applicationId: 'any-random-string'
       }
 
       let error
@@ -108,7 +108,7 @@ describe('upload schema', () => {
         sbi: 123456789,
         sourceSystem: 'source',
         documentType: 'agreement',
-        appId: 'any-random-string'
+        applicationId: 'any-random-string'
       }
 
       let error
@@ -141,7 +141,7 @@ describe('upload schema', () => {
         sbi: 123456789,
         sourceSystem: 'source',
         documentType: 'agreement',
-        appId: 'any-random-string'
+        applicationId: 'any-random-string'
       }
 
       let error
@@ -174,7 +174,7 @@ describe('upload schema', () => {
         sbi: 123456789,
         sourceSystem: 'source',
         documentType: 'agreement',
-        appId: 'any-random-string'
+        applicationId: 'any-random-string'
       }
 
       let error
@@ -207,7 +207,7 @@ describe('upload schema', () => {
         sbi: 123456789,
         sourceSystem: 'source',
         documentType: 'agreement',
-        appId: 'any-random-string'
+        applicationId: 'any-random-string'
       }
 
       let error
@@ -246,7 +246,7 @@ describe('upload schema', () => {
         sbi: 123456789,
         sourceSystem: 'source',
         documentType: 'agreement',
-        appId: 'any-random-string'
+        applicationId: 'any-random-string'
       }
 
       delete payload[field]
@@ -287,7 +287,7 @@ describe('upload schema', () => {
         sbi: 123456789,
         sourceSystem: 'source',
         documentType: 'agreement',
-        appId: 'any-random-string',
+        applicationId: 'any-random-string',
         crn
       }
 
@@ -316,7 +316,7 @@ describe('upload schema', () => {
         sbi: 123456789,
         sourceSystem: 'source',
         documentType: 'agreement',
-        appId: 'any-random-string',
+        applicationId: 'any-random-string',
         crn
       }
 
@@ -356,7 +356,7 @@ describe('upload schema', () => {
         sbi,
         sourceSystem: 'source',
         documentType: 'agreement',
-        appId: 'any-random-string'
+        applicationId: 'any-random-string'
       }
 
       const value = await v1.validateAsync(payload)
@@ -384,7 +384,7 @@ describe('upload schema', () => {
         sbi,
         sourceSystem: 'source',
         documentType: 'agreement',
-        appId: 'any-random-string'
+        applicationId: 'any-random-string'
       }
 
       let error
@@ -424,7 +424,7 @@ describe('upload schema', () => {
         sbi: 123456789,
         sourceSystem,
         documentType: 'agreement',
-        appId: 'any-random-string'
+        applicationId: 'any-random-string'
       }
 
       const value = await v1.validateAsync(payload)
@@ -451,7 +451,7 @@ describe('upload schema', () => {
         sbi: 123456789,
         sourceSystem,
         documentType: 'agreement',
-        appId: 'any-random-string'
+        applicationId: 'any-random-string'
       }
 
       let error
@@ -470,8 +470,8 @@ describe('upload schema', () => {
     })
   })
 
-  describe('appId', () => {
-    test('should not return an error if appId is missing', async () => {
+  describe('applicationId', () => {
+    test('should not return an error if applicationId is missing', async () => {
       const payload = {
         file: {
           hapi: {
@@ -493,7 +493,7 @@ describe('upload schema', () => {
       expect(value).toEqual(payload)
     })
 
-    test('should return an error if appId is not a string', async () => {
+    test('should return an error if applicationId is not a string', async () => {
       const payload = {
         file: {
           hapi: {
@@ -508,7 +508,7 @@ describe('upload schema', () => {
         sbi: 123456789,
         sourceSystem: 'source',
         documentType: 'agreement',
-        appId: 123456789
+        applicationId: 123456789
       }
 
       let error
@@ -523,7 +523,7 @@ describe('upload schema', () => {
 
       const messages = error.details.map(detail => detail.message)
 
-      expect(messages).toContain('"appId" must be a string')
+      expect(messages).toContain('"applicationId" must be a string')
     })
   })
 })
